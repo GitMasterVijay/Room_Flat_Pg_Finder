@@ -1,190 +1,143 @@
-import { useState } from "react";
-import { Eye, EyeOff, LogIn, Mail, Lock, Zap } from "lucide-react";
+import React, { useState } from "react";
+import { Eye, EyeOff, LogIn } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import API from "../api/axios";
+import axios from "axios"; // OR your custom API instance
 
 export default function Login() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Handle input change
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "", server: "" }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError("");
   };
 
-  // Submit login form
+  // Handle login
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    const newErrors = {};
-
-    if (!formData.email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
-      newErrors.email = "Please enter a valid email address.";
-    }
-    if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters.";
-    }
-
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
-
-    // API CALL
     try {
-      setLoading(true);
-      const res = await API.post("/auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        formData
+      );
 
-      // SAVE USER + TOKEN
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      if (res.data.success) {
+        const role = res.data.role;
 
-      // Redirect after login
-      navigate("/dashboard");
-    } catch (error) {
-      setErrors({
-        server: error.response?.data?.message || "Login failed. Try again.",
-      });
-    } finally {
-      setLoading(false);
+        // Save token & role
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("role", res.data.role);
+
+        // Redirect based on role
+        if (role === "owner") navigate("/owner/dashboard");
+        else navigate("/user/home");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
     }
+
+    setLoading(false);
   };
 
-  const ErrorMessage = ({ message }) => (
-    <p className="mt-1 text-xs font-medium text-red-500">{message}</p>
-  );
-
   return (
-    <div className="min-h-screen flex items-center justify-center p-0 sm:p-4">
-      <div className="w-full max-w-5xl h-screen sm:h-[600px] flex shadow-2xl overflow-hidden rounded-none sm:rounded-xl">
-        {/* LEFT SIDE IMAGE */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gray-800 text-white p-12 flex-col justify-center items-center relative">
-          <div
-            className="absolute inset-0 bg-cover bg-center opacity-30"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1547447192-36c92d5257a0?auto=format&fit=crop&q=80&w=1500')",
-            }}
-          ></div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
 
-          <div className="relative z-10 text-center">
-            <Zap size={48} className="text-cyan-400 mx-auto mb-4" />
-            <h2 className="text-4xl font-extrabold mb-3 tracking-wide">
-              Welcome Back
-            </h2>
-            <p className="text-gray-300 text-lg">
-              Manage your properties and check your dashboard.
-            </p>
+        <h2 className="text-3xl font-bold text-center text-indigo-600 mb-6">
+          <LogIn className="inline-block mb-1" size={28} /> Login
+        </h2>
+
+        {error && (
+          <p className="mb-4 text-center text-red-600 font-medium bg-red-100 py-2 rounded">
+            {error}
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          {/* Email */}
+          <div>
+            <label className="font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              name="email"
+              className="w-full mt-1 px-4 py-3 border rounded-lg focus:ring-2 
+              focus:ring-indigo-500 focus:outline-none"
+              placeholder="example@gmail.com"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
           </div>
 
-          <div className="absolute bottom-6 text-gray-500 text-sm">
-            <span className="text-cyan-400 font-bold">Room</span>Finder © 2025
-          </div>
-        </div>
-
-        {/* RIGHT SIDE FORM */}
-        <div className="w-full lg:w-1/2 bg-white p-8 sm:p-12 flex flex-col justify-center">
-          {/* HEADING */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
-              Access Your Dashboard
-            </h1>
-            <p className="text-gray-600 text-md">Enter your credentials.</p>
-          </div>
-
-          {/* SERVER ERROR */}
-          {errors.server && (
-            <p className="mb-4 p-3 text-red-600 bg-red-100 border border-red-300 rounded">
-              {errors.server}
-            </p>
-          )}
-
-          {/* FORM */}
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {/* EMAIL */}
-            <div>
-              <label className="block mb-2 text-sm font-semibold text-gray-700">
-                <Mail size={16} className="inline mr-1 text-indigo-500" /> Email
-              </label>
+          {/* Password */}
+          <div>
+            <label className="font-medium text-gray-700">Password</label>
+            <div className="relative">
               <input
-                type="email"
-                name="email"
-                value={formData.email}
+                type={showPassword ? "text" : "password"}
+                name="password"
+                className="w-full mt-1 px-4 py-3 border rounded-lg focus:ring-2 
+                focus:ring-indigo-500 focus:outline-none pr-12"
+                placeholder="********"
+                value={formData.password}
                 onChange={handleChange}
-                placeholder="you@example.com"
-                className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-indigo-500 focus:outline-none transition ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                }`}
+                required
               />
-              {errors.email && <ErrorMessage message={errors.email} />}
-            </div>
 
-            {/* PASSWORD */}
-            <div>
-              <label className="block mb-2 text-sm font-semibold text-gray-700">
-                <Lock size={16} className="inline mr-1 text-indigo-500" />{" "}
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-indigo-500 focus:outline-none pr-12 transition ${
-                    errors.password ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1"
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
-
-              {errors.password && <ErrorMessage message={errors.password} />}
-            </div>
-
-            <div className="flex justify-end">
-              <Link
-                to="/forgot-password"
-                className="text-sm text-indigo-600 hover:text-indigo-700 hover:underline font-medium transition"
+              {/* Show/Hide Password */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
               >
-                Forgot Password?
-              </Link>
+                {showPassword ? <EyeOff /> : <Eye />}
+              </button>
             </div>
+          </div>
 
-            {/* LOGIN BUTTON */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-semibold flex justify-center items-center gap-2 transition"
+          {/* Forgot Password */}
+          <div className="text-right">
+            <Link
+              to="/forgot-password"
+              className="text-indigo-600 hover:underline text-sm"
             >
-              <LogIn size={20} />
-              {loading ? "Please wait..." : "Login"}
-            </button>
+              Forgot Password?
+            </Link>
+          </div>
 
-            <p className="text-sm text-gray-600 text-center mt-4">
-              Don't have an account?
-              <Link
-                to="/register"
-                className="text-indigo-600 font-semibold ml-1 hover:underline"
-              >
-                Register
-              </Link>
-            </p>
-          </form>
-        </div>
+          {/* Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 text-white bg-indigo-600 rounded-lg 
+            hover:bg-indigo-700 transition font-semibold"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        {/* Register Link */}
+        <p className="text-center text-gray-600 mt-4">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="text-indigo-600 hover:underline font-medium"
+          >
+            Create Account
+          </Link>
+        </p>
       </div>
     </div>
   );

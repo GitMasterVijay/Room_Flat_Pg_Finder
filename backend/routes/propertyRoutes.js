@@ -1,14 +1,9 @@
 import express from "express";
-import { addProperty, getProperties, getPropertyById, deleteProperty } from "../controllers/propertyController.js";
-import { authenticate, authorizeRole } from "../middlewares/authMiddleware.js";
+import { addProperty } from "../controllers/propertyController.js";
+import upload from "../middlewares/multer.js";
 
 const router = express.Router();
 
-router.get("/", getProperties);
-router.get("/:id", getPropertyById);
-
-// protected routes (OWNER ONLY)
-router.post("/", authenticate, authorizeRole("owner"), addProperty);
-router.delete("/:id", authenticate, authorizeRole("owner"), deleteProperty);
+router.post("/add", upload.array("images", 5), addProperty);
 
 export default router;

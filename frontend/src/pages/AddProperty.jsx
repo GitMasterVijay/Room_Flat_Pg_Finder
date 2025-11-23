@@ -80,20 +80,43 @@ export default function AddProperty() {
         return isValid;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (validateForm()) {
-            // If validation passes, proceed with submission
-            console.log("Submitting Property:", { ...formData, amenities }); // Include amenities in submission
-            console.log("Images:", images);
-            alert("Property Listing Submitted Successfully!");
-            // Reset form here if submission was successful
-        } else {
-            console.log("Validation failed.");
-            alert("Please fix the validation errors before submitting.");
+    
+        if (!validateForm()) return;
+    
+        const form = new FormData();
+    
+        Object.entries(formData).forEach(([key, value]) => {
+            form.append(key, value);
+        });
+    
+        form.append("amenities", JSON.stringify(amenities));
+    
+        images.forEach(img => {
+            form.append("images", img);
+        });
+    
+        try {
+            const res = await fetch("http://localhost:5000/api/property/add", {
+                method: "POST",
+                body: form
+            });
+    
+            const data = await res.json();
+    
+            if (data.success) {
+                alert("Property Added Successfully!");
+            } else {
+                alert("Error: " + data.message);
+            }
+    
+        } catch (error) {
+            alert("Failed to connect with server");
+            console.log(error);
         }
     };
+    
 
     // Helper component to display errors
     const ErrorMessage = ({ message }) => (
