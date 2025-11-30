@@ -5,7 +5,9 @@ const userSchema = new mongoose.Schema({
   phone: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ["user", "owner"], default: "user" }
+  role: { type: String, enum: ["user", "owner"], default: "user" },
+  resetCode: { type: String },
+  resetCodeExpires: { type: Date }
 }, { timestamps: true });
 
 export default mongoose.model("User", userSchema);

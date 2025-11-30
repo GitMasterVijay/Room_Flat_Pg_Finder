@@ -74,9 +74,9 @@ export default function Login() {
           </div>
           {/* Placeholder for a complex image/illustration */}
           <img
-            src="https://via.placeholder.com/600x800/27303f/ffffff?text=Professional+Illustration" 
+            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80&fm=jpg&crop=entropy" 
             alt="App promotional visual"
-            className="absolute bottom-0 right-0 max-h-full opacity-0" // Hidden placeholder to maintain aspect ratio logic
+            className="absolute bottom-0 right-0 max-h-full opacity-0"
           />
         </div>
 
