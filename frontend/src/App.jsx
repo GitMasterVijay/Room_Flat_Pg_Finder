@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
@@ -24,6 +24,8 @@ import ViewPropertiesDetails from "./components/ViewPropertiesDetails";
 export default function App() {
   return (
     <Routes>
+      {/* DEFAULT: Redirect root to Login */}
+      <Route path="/" element={<Login />} />
 
       {/* PUBLIC USER ROUTES (Header + Footer) */}
       <Route element={<MainLayout />}>
@@ -55,6 +57,8 @@ export default function App() {
       
       </Route>
 
+      {/* Fallback: any unknown route goes to Login */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }

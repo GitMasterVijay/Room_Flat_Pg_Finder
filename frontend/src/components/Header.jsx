@@ -1,9 +1,24 @@
-import { Menu, X, LogIn, Building2 } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, LogIn, Building2, UserCircle, ChevronDown } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import API from "../api/axios";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [me, setMe] = useState(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await API.get("/auth/me");
+        setMe(res.data.user);
+      } catch (_) {
+        setMe(null);
+      }
+    };
+    load();
+  }, []);
 
   const navLinks = [
     { name: "Home", path: "/user/home" },
@@ -13,8 +28,8 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 w-full z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4">
+    <header className="bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 w-full z-50 shadow-md">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
         
         {/* Logo */}
         <Link 
@@ -43,23 +58,50 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Desktop Buttons */}
-        <div className="hidden md:flex gap-4">
-          <Link
-            to="/login"
-            className="px-5 py-2 bg-indigo-600 text-white rounded-full font-semibold shadow-md hover:bg-indigo-700 transition flex items-center gap-2"
-          >
-            <LogIn size={18} />
-            Sign In
-          </Link>
-
-          <Link
-            to="/register"
-            className="px-5 py-2 bg-cyan-500 text-white rounded-full font-semibold shadow-md hover:bg-cyan-600 transition flex items-center gap-2"
-          >
-            <LogIn size={18} />
-            Sign Up
-          </Link>
+        <div className="hidden md:flex items-center gap-4">
+          {!me ? (
+            <>
+              <Link
+                to="/login"
+                className="px-5 py-2 bg-indigo-600 text-white rounded-full font-semibold shadow hover:bg-indigo-700 transition flex items-center gap-2"
+              >
+                <LogIn size={18} />
+                Sign In
+              </Link>
+              <Link
+                to="/register"
+                className="px-5 py-2 bg-cyan-500 text-white rounded-full font-semibold shadow hover:bg-cyan-600 transition flex items-center gap-2"
+              >
+                <LogIn size={18} />
+                Sign Up
+              </Link>
+            </>
+          ) : (
+            <div className="relative">
+              <button
+                className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 transition"
+                onClick={() => setProfileOpen(!profileOpen)}
+              >
+                <UserCircle className="w-7 h-7 text-indigo-600" />
+                <span className="font-semibold text-gray-800">{me.fullName}</span>
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${profileOpen ? "rotate-180" : "rotate-0"}`} />
+              </button>
+              {profileOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 p-4">
+                  <div className="mb-3">
+                    <p className="text-sm font-bold text-gray-900">{me.fullName}</p>
+                    <p className="text-xs text-gray-600">{me.email}</p>
+                  </div>
+                  <button
+                    onClick={() => { localStorage.removeItem('token'); window.location.href = '/login'; }}
+                    className="mt-3 w-full text-left text-sm font-medium text-red-600 hover:underline"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Mobile Menu Button */}

@@ -21,6 +21,8 @@ export default function AddProperty() {
         type: "Flat",
         status: "Available",
         location: "",
+        mapUrl: "",
+        gender: "Mixed",
         price: "",
         deposit: "",
         bedrooms: 1,
@@ -109,9 +111,9 @@ export default function AddProperty() {
     
             const data = await res.json();
     
-            if (data.success) {
+                if (data.success) {
                 alert("Property Added Successfully!");
-                navigate("/listingPage");
+                navigate("/owner/my-properties");
             } else {
                 alert("Error: " + data.message);
             }
@@ -203,6 +205,34 @@ export default function AddProperty() {
                                         required
                                     />
                                     {formErrors.location && <ErrorMessage message={formErrors.location} />}
+                                </div>
+                            </div>
+
+                            {/* Map URL + Gender */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Google Map URL</label>
+                                    <input
+                                        type="url"
+                                        name="mapUrl"
+                                        value={formData.mapUrl}
+                                        onChange={handleChange}
+                                        placeholder="Paste Google Maps embed or share URL"
+                                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition border-gray-300"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Gender Preference</label>
+                                    <select
+                                        name="gender"
+                                        value={formData.gender}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white transition"
+                                    >
+                                        <option value="Mixed">Mixed</option>
+                                        <option value="Male">Boys</option>
+                                        <option value="Female">Girls</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>

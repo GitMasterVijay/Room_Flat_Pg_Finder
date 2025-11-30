@@ -76,7 +76,7 @@ export default function App() {
                     rent: p.price,
                     amenities: p.amenities || [],
                     imageUrl: p.images && p.images.length > 0 ? `http://localhost:5000/uploads/${p.images[0]}` : "https://placehold.co/600x400/CCCCCC/666666?text=No+Image",
-                    gender: "Mixed",
+                    gender: p.gender || "Mixed",
                 }));
                 setListings(mapped);
             } catch (e) {

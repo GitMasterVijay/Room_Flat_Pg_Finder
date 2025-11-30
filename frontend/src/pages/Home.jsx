@@ -6,6 +6,9 @@ import UserFeedback from "../components/userFeedback"
 import RoomFinderAdvantage from "../components/RoomFinderAdvantage";
 import ThreeSimpleStep from "../components/ThreeSimpleStep";
 import PopularCategoriesNearYou from "../components/PopularCategoriesNearYou"
+import Slider from "react-slick";
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);
@@ -39,52 +42,57 @@ export default function Home() {
   return (
     <div className="w-full font-sans ">
 
-      {/* ================= 1. HERO SECTION (High Impact & Functional) ================= */}
-      <section className="relative w-full h-[85vh] min-h-[500px] flex items-center justify-center text-white bg-gray-900">
-
-        {/* Background Image and Gradient Overlay */}
-        <img
-          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80"
-          alt="Modern interior home"
-          className="absolute top-0 left-0 w-full h-full object-cover opacity-60" // Reduced opacity slightly
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
-
-        <div className="relative z-10 text-center px-6">
-          <p className="text-cyan-400 text-lg font-semibold mb-3 flex items-center justify-center gap-2">
-            <TrendingUp size={20} /> Over 12,000 Verified Listings!
-          </p>
-          <h1 className="text-5xl md:text-7xl font-extrabold mb-4 tracking-tight">
-            Find Your Next Perfect Stay
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 font-light text-gray-300"> {/* Adjusted text color for better contrast */}
-            Rooms, PGs, and Flats—Directly from Owners. Zero Brokerage.
-          </p>
-
-          {/* Search Bar - Larger and more prominent */}
-          <div className="max-w-2xl mx-auto flex bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
-            <input
-              type="text"
-              placeholder="Enter City, Locality, or Property Type (e.g., Pune, PG for Girls)..."
-              className="flex-1 px-6 py-4 text-lg text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-indigo-500 rounded-l-xl"
-            />
-            <button className="bg-indigo-600 px-8 py-4 text-lg font-bold flex items-center gap-2 hover:bg-indigo-700 transition">
-              <Search size={22} /> Search
-            </button>
-          </div>
-
-          {/* Quick Filter Buttons - Adjusted styling for theme */}
-          <div className="flex justify-center gap-4 mt-6">
-            {['PG', 'Flat', 'Room'].map((type) => (
-              <button
-                key={type}
-                className="px-6 py-2 rounded-full border border-cyan-400 text-sm font-medium bg-cyan-500 text-gray-900 hover:bg-cyan-600 transition"
-              >
-                Find {type}
-              </button>
-            ))}
-          </div>
-        </div>
+      <section className="relative w-full min-h-[500px] text-white bg-gray-900">
+        <Slider
+          autoplay
+          autoplaySpeed={4000}
+          infinite
+          arrows={false}
+          dots
+          className="h-[85vh]"
+        >
+          {[
+            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80&fm=jpg&crop=entropy",
+            "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1600&q=80&fm=jpg&crop=entropy",
+            "https://images.unsplash.com/photo-1502005229762-cf1b0a7c60a3?w=1600&q=80&fm=jpg&crop=entropy",
+          ].map((src, idx) => (
+            <div key={idx} className="relative w-full h-[85vh]">
+              <img src={src} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-70" />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 to-transparent"></div>
+              <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
+                <p className="text-cyan-400 text-lg font-semibold mb-3 flex items-center justify-center gap-2">
+                  <TrendingUp size={20} /> Over 12,000 Verified Listings!
+                </p>
+                <h1 className="text-5xl md:text-7xl font-extrabold mb-4 tracking-tight">
+                  Find Your Next Perfect Stay
+                </h1>
+                <p className="text-xl md:text-2xl mb-8 font-light text-gray-200">
+                  Rooms, PGs, and Flats—Directly from Owners. Zero Brokerage.
+                </p>
+                <div className="max-w-2xl mx-auto flex bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
+                  <input
+                    type="text"
+                    placeholder="Enter City, Locality, or Property Type (e.g., Pune, PG for Girls)..."
+                    className="flex-1 px-6 py-4 text-lg text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-indigo-500 rounded-l-xl"
+                  />
+                  <button className="bg-indigo-600 px-8 py-4 text-lg font-bold flex items-center gap-2 hover:bg-indigo-700 transition">
+                    <Search size={22} /> Search
+                  </button>
+                </div>
+                <div className="flex justify-center gap-4 mt-6">
+                  {['PG', 'Flat', 'Room'].map((type) => (
+                    <button
+                      key={type}
+                      className="px-6 py-2 rounded-full border border-cyan-400 text-sm font-medium bg-cyan-500 text-gray-900 hover:bg-cyan-600 transition"
+                    >
+                      Find {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </Slider>
       </section>
 
       {/* --- */}

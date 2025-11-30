@@ -6,6 +6,7 @@ import {
   updateProperty,
   deleteProperty,
   listMyProperties,
+  addVisitRequest,
 } from "../controllers/propertyController.js";
 import upload from "../middlewares/multer.js";
 import { auth, ownerOnly } from "../middlewares/authMiddleware.js";
@@ -23,5 +24,6 @@ router.delete("/:id", auth, ownerOnly, deleteProperty);
 
 // Public property by id
 router.get("/:id", getPropertyById);
+router.post("/:id/visit", addVisitRequest);
 
 export default router;

@@ -139,91 +139,28 @@ export default function OwnerDashboardV2() {
                     />
                 </div>
 
-                {/* --- 2. Main Content: Financial & Operational Split --- */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
-                    {/* LEFT (2/3): Financial and Property Management */}
-                    <div className="lg:col-span-2 space-y-8">
-                        
-                        {/* Financial Snapshot Card */}
-                        <div className="bg-white p-6 rounded-xl shadow-2xl shadow-blue-100/50 border border-blue-50">
-                            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2">
-                                <FaWallet className="text-blue-600" /> Monthly Financial Snapshot
-                            </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <FinancialStat 
-                                    title="Total Rent Due" 
-                                    value={financialSummary.totalRentDue} 
-                                    icon={FaRupeeSign} 
-                                    textColor="text-indigo-600"
-                                />
-                                <FinancialStat 
-                                    title="Collected Today" 
-                                    value={financialSummary.rentCollectedToday} 
-                                    icon={FaRupeeSign} 
-                                    textColor="text-green-600"
-                                />
-                                <FinancialStat 
-                                    title="Pending Payments" 
-                                    value={`${financialSummary.pendingPayments} tenants`} 
-                                    icon={FaExclamationCircle} 
-                                    textColor="text-red-600"
-                                />
-                            </div>
-                            <button className="w-full mt-4 text-sm font-semibold text-blue-600 bg-blue-50 py-2 rounded-lg hover:bg-blue-100 transition">
-                                View Detailed Ledger <FaChevronRight className="inline ml-1 w-3 h-3" />
-                            </button>
-                        </div>
-
-                        {/* Property Listings Summary */}
-                        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-                            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2">
-                                <FaClipboardList className="text-purple-600" /> Recent Property Activity
-                            </h2>
-                            <ul className="space-y-3">
-                                {properties.map((p) => (
-                                    <li key={p.id} className="flex justify-between items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition">
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-gray-800 truncate">{p.name}</p>
-                                            <p className="text-xs text-gray-500 flex items-center gap-1"><FaMapMarkerAlt className="w-3 h-3 text-indigo-400"/>{p.location}</p>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${p.status === 'Leased' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                                {p.status}
-                                            </span>
-                                            <span className="font-bold text-md text-indigo-600">{p.monthlyRent}</span>
-                                            <FaChevronRight className="text-gray-400 w-3 h-3" />
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                            <button className="w-full mt-4 text-sm font-semibold text-purple-600 bg-purple-50 py-2 rounded-lg hover:bg-purple-100 transition">
-                                Manage All Listings
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* RIGHT (1/3): Urgent Tasks and Requests */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-white p-6 rounded-xl shadow-2xl shadow-red-100/50 border border-red-50 h-full">
-                            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2">
-                                <FaExclamationCircle className="text-red-600" /> Urgent Action Center
-                            </h2>
-                            
-                            <ul className="space-y-4">
-                                {tasks.map((task) => (
-                                    <li key={task.id} className={`p-3 rounded-lg border-l-4 ${task.urgency === 'High' ? 'border-red-500 bg-red-50' : task.urgency === 'Medium' ? 'border-yellow-500 bg-yellow-50' : 'border-blue-500 bg-blue-50'} shadow-sm flex justify-between items-start`}>
-                                        <p className="text-sm font-medium text-gray-800 flex-1">{task.description}</p>
-                                        <button title="Resolve" className="ml-3 p-1 rounded-full text-gray-500 hover:text-green-600 hover:bg-white transition">
-                                            <FaCheckCircle className="w-4 h-4"/>
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                            <button className="w-full mt-6 text-sm font-bold text-red-600 bg-red-50 py-2 rounded-xl border border-red-200 hover:bg-red-100 transition">
-                                View All Tasks
-                            </button>
-                        </div>
+                <div className="space-y-8">
+                    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2">
+                            <FaClipboardList className="text-purple-600" /> Recent Property Activity
+                        </h2>
+                        <ul className="space-y-3">
+                            {properties.map((p) => (
+                                <li key={p.id} className="flex justify-between items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-semibold text-gray-800 truncate">{p.name}</p>
+                                        <p className="text-xs text-gray-500 flex items-center gap-1"><FaMapMarkerAlt className="w-3 h-3 text-indigo-400"/>{p.location}</p>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${p.status === 'Leased' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                            {p.status}
+                                        </span>
+                                        <span className="font-bold text-md text-indigo-600">{p.monthlyRent}</span>
+                                        <FaChevronRight className="text-gray-400 w-3 h-3" />
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
 

@@ -173,7 +173,7 @@ const FeatureGrid = ({ features }) => (
 // ---------------------------------------------------------
 // RIGHT SIDEBAR (Price + CTA + Owner Contact) - UPDATED
 // ---------------------------------------------------------
-const BookingSidebar = ({ price, deposit, owner }) => (
+const BookingSidebar = ({ price, deposit, owner, onOpenVisit }) => (
   <div className="hidden lg:block lg:sticky top-6 p-6 bg-white rounded-2xl shadow-xl border border-indigo-200/50">
     <div className="pb-4 border-b">
       <p className="text-sm font-semibold text-gray-600">Monthly Rent</p>
@@ -185,7 +185,7 @@ const BookingSidebar = ({ price, deposit, owner }) => (
 
     <div className="mt-6 space-y-4">
       {/* Schedule Visit CTA */}
-      <button className="w-full bg-indigo-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2">
+      <button onClick={onOpenVisit} className="w-full bg-indigo-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2">
         <Calendar className="w-5 h-5" />
         Schedule a Visit
       </button>
@@ -216,7 +216,7 @@ const BookingSidebar = ({ price, deposit, owner }) => (
 // ---------------------------------------------------------
 // MOBILE FIXED FOOTER CTA (UPDATED with Contact Info)
 // ---------------------------------------------------------
-const MobileFooterCTA = ({ price, owner }) => (
+const MobileFooterCTA = ({ price, owner, onOpenVisit }) => (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-gray-200 shadow-2xl z-50">
         <div className="flex items-center justify-between">
             <div>
@@ -227,7 +227,7 @@ const MobileFooterCTA = ({ price, owner }) => (
                 <a href={`tel:${owner.phone}`} className="p-3 rounded-xl bg-gray-100 text-indigo-600 border border-gray-300 flex items-center justify-center hover:bg-gray-200 transition">
                     <Phone className="w-5 h-5" />
                 </a>
-                <button className="bg-indigo-600 text-white font-bold px-5 py-3 rounded-xl shadow-lg hover:bg-indigo-700 transition-colors flex items-center gap-2">
+                <button onClick={onOpenVisit} className="bg-indigo-600 text-white font-bold px-5 py-3 rounded-xl shadow-lg hover:bg-indigo-700 transition-colors flex items-center gap-2">
                     <Calendar className="w-5 h-5" />
                     Visit
                 </button>
@@ -246,6 +246,9 @@ export default function ViewPropertiesDetails() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [visitOpen, setVisitOpen] = React.useState(false);
+  const [visitForm, setVisitForm] = React.useState({ name: "", phone: "", time: "" });
+  const [visitStatus, setVisitStatus] = React.useState("");
 
   React.useEffect(() => {
     const fetchProperty = async () => {
@@ -271,6 +274,25 @@ export default function ViewPropertiesDetails() {
           role: "Owner",
         } : { name: "Owner", phone: "", email: "", role: "Owner" };
 
+        const buildEmbed = (raw, address) => {
+          const s = String(raw || "").trim();
+          if (!s) return `https://maps.google.com/maps?q=${encodeURIComponent(address || "")}\u0026z=15\u0026output=embed`;
+          if (s.includes("/embed") || s.includes("output=embed")) return s;
+          if (/maps\.app\.goo\.gl|goo\.gl\/maps/i.test(s)) {
+            return `https://maps.google.com/maps?q=${encodeURIComponent(address || "")}\u0026z=15\u0026output=embed`;
+          }
+          let m = s.match(/@(-?\d+\.\d+),\s*(-?\d+\.\d+)/);
+          if (!m) m = s.match(/q=([-?\d\.]+),([-?\d\.]+)/);
+          if (m) {
+            const lat = m[1];
+            const lng = m[2];
+            return `https://maps.google.com/maps?q=${lat},${lng}\u0026z=15\u0026output=embed`;
+          }
+          return `https://maps.google.com/maps?q=${encodeURIComponent(address || s)}\u0026z=15\u0026output=embed`;
+        };
+
+        const embed = buildEmbed(prop.mapUrl, prop.location);
+
         setP({
           title: prop.name || "",
           type: prop.type || "",
@@ -286,7 +308,7 @@ export default function ViewPropertiesDetails() {
           images: imgs.length ? imgs : ["https://placehold.co/1200x800/CCCCCC/666666?text=No+Image"],
           features,
           owner,
-          mapEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15132.894314488582!2d73.8055609425475!3d18.519082005481747!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2bf49b4566f1b%3A0xc3f95889758a0a9c!2sMIT%20College%20of%20Engineering!5e0!3m2!1sen!2sin!4v1700050962384!5m2!1sen!2sin",
+          mapEmbed: embed,
         });
       } catch (e) {
         setError("Failed to load property");
@@ -416,10 +438,11 @@ export default function ViewPropertiesDetails() {
 
                 <div className="rounded-xl overflow-hidden shadow-lg border h-80">
                     <iframe
-                        title="Property Location in Pune"
+                        title="Property Location"
                         src={p.mapEmbed}
-                        allowFullScreen=""
+                        allowFullScreen
                         loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
                         className="w-full h-full"
                     ></iframe>
                 </div>
@@ -430,12 +453,12 @@ export default function ViewPropertiesDetails() {
 
         {/* RIGHT COLUMN (Sticky Sidebar: Price, Visit CTA, Contact Details) */}
         <div className="lg:col-span-1">
-            <BookingSidebar price={p.price} deposit={p.deposit} owner={p.owner} />
+            <BookingSidebar price={p.price} deposit={p.deposit} owner={p.owner} onOpenVisit={() => setVisitOpen(true)} />
         </div>
       </div>
 
       {/* Mobile Fixed CTA */}
-      <MobileFooterCTA price={p.price} owner={p.owner} />
+      <MobileFooterCTA price={p.price} owner={p.owner} onOpenVisit={() => setVisitOpen(true)} />
 
       {/* Full Image Modal */}
       <FullImageModal 
@@ -443,6 +466,69 @@ export default function ViewPropertiesDetails() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
       />
+
+      {visitOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 border">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Schedule a Visit</h3>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setVisitStatus("");
+                try {
+                  const res = await API.post(`/property/${id}/visit`, visitForm);
+                  if (res.data.success) {
+                    setVisitStatus("Visit request sent to owner");
+                    setVisitForm({ name: "", phone: "", time: "" });
+                    setTimeout(() => setVisitOpen(false), 1200);
+                  } else {
+                    setVisitStatus("Failed to schedule visit");
+                  }
+                } catch {
+                  setVisitStatus("Failed to schedule visit");
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="text-sm font-medium text-gray-700">Name</label>
+                <input
+                  type="text"
+                  value={visitForm.name}
+                  onChange={(e) => setVisitForm({ ...visitForm, name: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Mobile Number</label>
+                <input
+                  type="tel"
+                  value={visitForm.phone}
+                  onChange={(e) => setVisitForm({ ...visitForm, phone: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Preferred Time</label>
+                <input
+                  type="datetime-local"
+                  value={visitForm.time}
+                  onChange={(e) => setVisitForm({ ...visitForm, time: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
+              {visitStatus && <p className="text-sm text-indigo-600">{visitStatus}</p>}
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setVisitOpen(false)} className="px-4 py-2 rounded-lg border">Cancel</button>
+                <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-600 text-white">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

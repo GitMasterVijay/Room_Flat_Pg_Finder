@@ -15,6 +15,8 @@ export const addProperty = async (req, res) => {
       floor,
       description,
       amenities,
+      gender,
+      mapUrl,
     } = req.body;
 
     if (!name || !type || !location || !price || !deposit || !bedrooms || !bathrooms || !description) {
@@ -45,6 +47,8 @@ export const addProperty = async (req, res) => {
       floor,
       description,
       amenities: amenitiesArr,
+      gender,
+      mapUrl,
       images: imagePaths,
       ownerId: req.user.id,
     });
@@ -136,5 +140,22 @@ export const deleteProperty = async (req, res) => {
     res.json({ success: true, message: "Property deleted" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ADD VISIT REQUEST (public)
+export const addVisitRequest = async (req, res) => {
+  try {
+    const { name, phone, time } = req.body;
+    if (!name || !phone || !time) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+    const property = await Property.findById(req.params.id);
+    if (!property) return res.status(404).json({ success: false, message: "Property not found" });
+    property.visits.push({ name, phone, time });
+    await property.save();
+    return res.json({ success: true, message: "Visit scheduled", visits: property.visits });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
   }
 };

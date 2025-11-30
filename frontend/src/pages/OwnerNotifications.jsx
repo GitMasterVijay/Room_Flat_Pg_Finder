@@ -1,58 +1,38 @@
-import React, { useState } from 'react';
-import { Mail, MessageSquare, Star, CheckCircle, Trash2, Settings, AlertTriangle, User, Bell } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Mail, MessageSquare, Star, CheckCircle, Trash2, Settings, AlertTriangle, User, Bell, Calendar } from 'lucide-react';
+import API from "../api/axios";
 
-// Sample Notification Data
-const initialNotifications = [
-    {
-        id: 1,
-        type: 'BookingRequest',
-        message: 'New booking request for "2BHK in Pune" from Priya Sharma.',
-        time: '2 hours ago',
-        read: false,
-        icon: Star,
-        iconColor: 'text-indigo-600'
-    },
-    {
-        id: 2,
-        type: 'Message',
-        message: 'User Rohan Verma sent a message about "Fully Furnished PG".',
-        time: '5 hours ago',
-        read: false,
-        icon: MessageSquare,
-        iconColor: 'text-cyan-500'
-    },
-    {
-        id: 3,
-        type: 'PropertyInquiry',
-        message: 'Quick inquiry regarding availability of "1RK for Students".',
-        time: 'Yesterday',
-        read: true,
-        icon: Mail,
-        iconColor: 'text-green-600'
-    },
-    {
-        id: 4,
-        type: 'SystemAlert',
-        message: 'Your property "2BHK in Pune" verification is pending.',
-        time: '2 days ago',
-        read: true,
-        icon: AlertTriangle,
-        iconColor: 'text-red-500'
-    },
-    {
-        id: 5,
-        type: 'Review',
-        message: 'Amit Patil left a positive review on your PG listing.',
-        time: '1 week ago',
-        read: true,
-        icon: User,
-        iconColor: 'text-purple-600'
-    },
-];
+const initialNotifications = [];
 
 function OwnerNotifications() {
     const [notifications, setNotifications] = useState(initialNotifications);
     const [filter, setFilter] = useState('all'); // 'all' or 'unread'
+
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const res = await API.get("/property/my");
+                const items = [];
+                (res.data.properties || []).forEach((p) => {
+                    (p.visits || []).forEach((v, idx) => {
+                        items.push({
+                            id: `${p._id}-${idx}`,
+                            type: 'VisitRequest',
+                            message: `${v.name} (${v.phone}) requested a visit for "${p.name}" at ${new Date(v.time).toLocaleString()}`,
+                            time: new Date(v.createdAt || Date.now()).toLocaleString(),
+                            read: false,
+                            icon: Calendar,
+                            iconColor: 'text-indigo-600'
+                        });
+                    });
+                });
+                setNotifications(items.reverse());
+            } catch (_) {
+                setNotifications([]);
+            }
+        };
+        load();
+    }, []);
 
     const markAllAsRead = () => {
         setNotifications(notifications.map(n => ({ ...n, read: true })));

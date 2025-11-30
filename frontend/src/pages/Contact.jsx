@@ -30,9 +30,10 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      alert("Message Sent Successfully!");
-      console.log("Submitting:", formData);
-      // Add API submission logic here
+      const phone = "919579074013";
+      const text = `New RoomFinder inquiry:%0AName: ${encodeURIComponent(formData.name)}%0AEmail: ${encodeURIComponent(formData.email)}%0ASubject: ${encodeURIComponent(formData.subject)}%0AMessage: ${encodeURIComponent(formData.message)}`;
+      const url = `https://api.whatsapp.com/send?phone=${phone}&text=${text}`;
+      window.open(url, "_blank");
     }
   };
 

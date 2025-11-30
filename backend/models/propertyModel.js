@@ -18,9 +18,19 @@ const propertySchema = new mongoose.Schema({
 
   amenities: { type: [String], default: [] },
 
+  gender: { type: String, enum: ["Male", "Female", "Mixed"], default: "Mixed" },
+  mapUrl: { type: String },
+
   images: { type: [String], required: true },
 
   ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+
+  visits: [{
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    time: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+  }],
 }, { timestamps: true });
 
 export default mongoose.model("Property", propertySchema);
