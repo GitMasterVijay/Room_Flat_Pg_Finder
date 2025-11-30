@@ -24,7 +24,7 @@ import ViewPropertiesDetails from "./components/ViewPropertiesDetails";
 export default function App() {
   return (
     <Routes>
-      {/* DEFAULT: Redirect root to Login */}
+      {/* DEFAULT: Always show Login at root */}
       <Route path="/" element={<Login />} />
 
       {/* PUBLIC USER ROUTES (Header + Footer) */}

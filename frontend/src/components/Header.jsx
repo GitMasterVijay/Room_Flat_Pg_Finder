@@ -7,6 +7,9 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [me, setMe] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedback, setFeedback] = useState({ description: "", name: "", location: "", type: "PG", propertyName: "" });
+  const [feedbackMsg, setFeedbackMsg] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -28,7 +31,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 w-full z-50 shadow-md">
+    <header className="bg-white/95 backdrop-blur border-b border-gray-200 sticky top-0 w-full z-50 shadow-md relative">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
         
         {/* Logo */}
@@ -92,6 +95,7 @@ export default function Header() {
                     <p className="text-sm font-bold text-gray-900">{me.fullName}</p>
                     <p className="text-xs text-gray-600">{me.email}</p>
                   </div>
+                  <button onClick={() => { setFeedbackOpen(true); setProfileOpen(false); }} className="block text-sm font-medium text-indigo-600 hover:underline">Give Feedback</button>
                   <button
                     onClick={() => { localStorage.removeItem('token'); window.location.href = '/login'; }}
                     className="mt-3 w-full text-left text-sm font-medium text-red-600 hover:underline"
@@ -147,6 +151,92 @@ export default function Header() {
           </Link>
         </nav>
       </div>
+      {feedbackOpen && (
+        <div className="absolute left-0 right-0 top-full z-[60] flex justify-center px-4">
+          <div className="bg-white w-full max-w-md mt-2 rounded-2xl shadow-2xl p-6 border">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Give Feedback</h3>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setFeedbackMsg("");
+                try {
+                  const res = await API.post("/feedback", feedback);
+                  if (res.data.success) {
+                    setFeedbackMsg("Thanks! Your feedback was submitted.");
+                    setFeedback({ description: "", name: "", location: "", type: "PG", propertyName: "" });
+                    setTimeout(() => setFeedbackOpen(false), 1200);
+                  } else {
+                    setFeedbackMsg("Submission failed");
+                  }
+                } catch {
+                  setFeedbackMsg("Submission failed");
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="text-sm font-medium text-gray-700">Description</label>
+                <textarea
+                  rows={3}
+                  value={feedback.description}
+                  onChange={(e) => setFeedback({ ...feedback, description: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Your Name</label>
+                <input
+                  type="text"
+                  value={feedback.name}
+                  onChange={(e) => setFeedback({ ...feedback, name: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Location</label>
+                <input
+                  type="text"
+                  value={feedback.location}
+                  onChange={(e) => setFeedback({ ...feedback, location: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">Type</label>
+                  <select
+                    value={feedback.type}
+                    onChange={(e) => setFeedback({ ...feedback, type: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="PG">PG</option>
+                    <option value="Flat">Flat</option>
+                    <option value="Hostel">Hostel</option>
+                    <option value="Room">Room</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">PG/Flat/Hostel Name</label>
+                  <input
+                    type="text"
+                    value={feedback.propertyName}
+                    onChange={(e) => setFeedback({ ...feedback, propertyName: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+              {feedbackMsg && <p className="text-sm text-indigo-600">{feedbackMsg}</p>}
+              <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={() => setFeedbackOpen(false)} className="px-4 py-2 rounded-lg border">Cancel</button>
+                <button type="submit" className="px-4 py-2 rounded-lg bg-indigo-600 text-white">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
