@@ -435,13 +435,7 @@ export default function OwnerMyProperties() {
                                     </div>
 
                                     <div className="flex gap-3 justify-end">
-                                        <Link
-                                            to={`/property/${property.id}`}
-                                            title="View Live Listing"
-                                            className="p-3 rounded-full text-gray-600 hover:bg-gray-100 hover:text-indigo-600 transition"
-                                        >
-                                            <Eye size={20} />
-                                        </Link>
+                                    
                                         <button
                                             onClick={() => handleEditClick(property)}
                                             title="Edit Property"

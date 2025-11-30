@@ -78,9 +78,9 @@ export default function OwnerHeader() {
                     <Link to="/owner/ownerProfile" onClick={closeMenus} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-700 transition">
                         <User size={18} className="text-indigo-500" /> Profile
                     </Link>
-                    <Link to="/owner/ownerSetting" onClick={closeMenus} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-700 transition">
+                    {/* <Link to="/owner/ownerSetting" onClick={closeMenus} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-700 transition">
                         <Settings size={18} className="text-indigo-500" /> Settings
-                    </Link>
+                    </Link> */}
                     <div className="border-t border-gray-100 my-1"></div>
                     <Link to="/login" onClick={closeMenus} className="flex items-center gap-2 px-4 py-2 hover:bg-red-50 text-red-600 transition">
                         <LogOut size={18} /> Logout

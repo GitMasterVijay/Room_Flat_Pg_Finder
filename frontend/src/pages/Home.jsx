@@ -69,7 +69,7 @@ export default function Home() {
                 <p className="text-xl md:text-2xl mb-8 font-light text-gray-200">
                   Rooms, PGs, and Flats—Directly from Owners. Zero Brokerage.
                 </p>
-                <div className="max-w-2xl mx-auto flex bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
+                {/* <div className="max-w-2xl mx-auto flex bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
                   <input
                     type="text"
                     placeholder="Enter City, Locality, or Property Type (e.g., Pune, PG for Girls)..."
@@ -78,7 +78,7 @@ export default function Home() {
                   <button className="bg-indigo-600 px-8 py-4 text-lg font-bold flex items-center gap-2 hover:bg-indigo-700 transition">
                     <Search size={22} /> Search
                   </button>
-                </div>
+                </div> */}
                 <div className="flex justify-center gap-4 mt-6">
                   {['PG', 'Flat', 'Room'].map((type) => (
                     <button

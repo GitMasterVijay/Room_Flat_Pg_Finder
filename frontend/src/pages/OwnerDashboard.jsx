@@ -15,20 +15,11 @@ export default function OwnerDashboardV2() {
     const [occupancyRate, setOccupancyRate] = useState(0);
     const [rentCollected, setRentCollected] = useState(0);
 
-    // Simulated data
-    const financialSummary = {
-        totalRentDue: "₹2,05,000",
-        rentCollectedToday: "₹15,000",
-        pendingPayments: 3,
-    };
+  
 
     const [properties, setProperties] = useState([]);
-
-    const tasks = [
-        { id: 1, description: "Review tenant screening for City Center Flat", urgency: "High" },
-        { id: 2, description: "Send rent reminder to Unit 302", urgency: "Medium" },
-        { id: 3, description: "Schedule maintenance for water heater", urgency: "Low" },
-    ];
+    const [visits, setVisits] = useState([]);
+ 
 
     useEffect(() => {
         // Animation logic
@@ -59,7 +50,8 @@ export default function OwnerDashboardV2() {
         const fetchMy = async () => {
             try {
                 const res = await API.get("/property/my");
-                const list = (res.data.properties || []).map((p) => ({
+                const raw = res.data.properties || [];
+                const list = raw.map((p) => ({
                     id: p._id,
                     name: p.name,
                     location: p.location,
@@ -67,6 +59,20 @@ export default function OwnerDashboardV2() {
                     monthlyRent: `₹${Number(p.price || 0).toLocaleString('en-IN')}`,
                 }));
                 setProperties(list);
+                const v = [];
+                raw.forEach((p) => {
+                    (p.visits || []).forEach((vt) => {
+                        v.push({
+                            propertyId: p._id,
+                            propertyName: p.name,
+                            name: vt.name,
+                            phone: vt.phone,
+                            time: vt.time,
+                            createdAt: vt.createdAt,
+                        });
+                    });
+                });
+                setVisits(v.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0,10));
                 // Adjust metrics target to real count if desired
                 // setActiveUnits(list.length);
             } catch (e) {
@@ -79,18 +85,9 @@ export default function OwnerDashboardV2() {
     // --- Component Definitions ---
 
     const MetricCard = ({ icon: Icon, title, value, unit, color }) => (
-        <div className={`bg-white p-6 rounded-xl shadow-lg border-l-4 ${color} transition hover:shadow-xl hover:scale-[1.01] duration-300`}>
-            <div className="flex items-center justify-between">
-                <div>
-                    <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">{title}</h3>
-                    <p className="text-4xl font-extrabold text-gray-900 mt-1">
-                        {value}
-                        {unit && <span className="text-xl font-semibold text-gray-600 ml-1">{unit}</span>}
-                    </p>
-                </div>
-                <Icon className={`text-3xl ${color.replace('border-', 'text-').replace('500', '600')}`} />
-            </div>
-        </div>
+       <div>
+            
+       </div>
     );
 
     const FinancialStat = ({ title, value, icon: Icon, textColor }) => (
@@ -103,6 +100,37 @@ export default function OwnerDashboardV2() {
         </div>
     );
 
+    const StatBlock = () => {
+        const total = properties.length;
+        const available = properties.filter(p => p.status === 'Available').length;
+        const unavailable = total - available;
+        const occupancy = total ? Math.round((unavailable / total) * 100) : 0;
+        const totalRent = properties.reduce((sum, p) => {
+            const num = Number(String(p.monthlyRent).replace(/[^\d]/g, ""));
+            return sum + (isNaN(num) ? 0 : num);
+        }, 0);
+        return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div className="bg-white p-5 rounded-xl border shadow">
+                    <p className="text-sm text-gray-500">Total Listings</p>
+                    <p className="text-2xl font-extrabold text-gray-900">{total}</p>
+                </div>
+                <div className="bg-white p-5 rounded-xl border shadow">
+                    <p className="text-sm text-gray-500">Available</p>
+                    <p className="text-2xl font-extrabold text-green-600">{available}</p>
+                </div>
+                <div className="bg-white p-5 rounded-xl border shadow">
+                    <p className="text-sm text-gray-500">Occupancy</p>
+                    <p className="text-2xl font-extrabold text-indigo-600">{occupancy}%</p>
+                </div>
+                <div className="bg-white p-5 rounded-xl border shadow">
+                    <p className="text-sm text-gray-500">Monthly Rent (sum)</p>
+                    <p className="text-2xl font-extrabold text-cyan-600">₹{totalRent.toLocaleString('en-IN')}</p>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="min-h-screen p-4 md:p-8 font-sans bg-gray-50 text-gray-900 [background-image:linear-gradient(to_bottom,#fcfdff,#eef4fa)]">
             <div className="max-w-7xl mx-auto">
@@ -110,9 +138,7 @@ export default function OwnerDashboardV2() {
                     <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 flex items-center gap-3">
                         <FaChartBar className="text-indigo-600" /> Owner Dashboard
                     </h1>
-                    <button className="flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-600/40 text-sm">
-                        <FaPlus /> New Unit
-                    </button>
+                
                 </header>
 
                 {/* --- 1. Top Metrics Section: Performance Overview --- */}
@@ -139,6 +165,8 @@ export default function OwnerDashboardV2() {
                     />
                 </div>
 
+                <StatBlock />
+
                 <div className="space-y-8">
                     <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
                         <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2">
@@ -161,6 +189,44 @@ export default function OwnerDashboardV2() {
                                 </li>
                             ))}
                         </ul>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                        <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2">
+                            Upcoming Visits
+                        </h2>
+                        {visits.length === 0 ? (
+                            <p className="text-sm text-gray-500">No visit requests yet</p>
+                        ) : (
+                            <ul className="space-y-3">
+                                {visits.map((v, i) => (
+                                    <li key={i} className="flex justify-between items-center p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition">
+                                        <div className="min-w-0">
+                                            <p className="font-semibold text-gray-800 truncate">{v.propertyName}</p>
+                                            <p className="text-xs text-gray-500">{new Date(v.time).toLocaleString()}</p>
+                                        </div>
+                                        <div className="text-sm text-gray-700">
+                                            {v.name} • {v.phone}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <a href="/owner/addProperties" className="bg-white p-6 rounded-xl shadow border hover:shadow-lg transition">
+                            <p className="text-sm text-gray-500">Quick Action</p>
+                            <p className="text-xl font-bold text-gray-900">Add Property</p>
+                        </a>
+                        <a href="/owner/my-properties" className="bg-white p-6 rounded-xl shadow border hover:shadow-lg transition">
+                            <p className="text-sm text-gray-500">Quick Action</p>
+                            <p className="text-xl font-bold text-gray-900">Manage Listings</p>
+                        </a>
+                        <a href="/owner/ownerNotification" className="bg-white p-6 rounded-xl shadow border hover:shadow-lg transition">
+                            <p className="text-sm text-gray-500">Quick Action</p>
+                            <p className="text-xl font-bold text-gray-900">Notifications</p>
+                        </a>
                     </div>
                 </div>
 
