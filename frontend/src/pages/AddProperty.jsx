@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaUpload, FaTrash, FaCheckCircle, FaRupeeSign, FaBed, FaToilet, FaRulerCombined, FaLayerGroup, FaPlus, FaExclamationCircle, FaClipboardCheck, FaCar, FaWifi, FaIceCream, FaCoffee, FaConciergeBell, FaShower, FaHome } from "react-icons/fa";
 
 // List of common amenities
@@ -13,6 +14,7 @@ const AMENITY_OPTIONS = [
 ];
 
 export default function AddProperty() {
+    const navigate = useNavigate();
     const [images, setImages] = useState([]);
     const [formData, setFormData] = useState({
         name: "",
@@ -98,8 +100,10 @@ export default function AddProperty() {
         });
     
         try {
+            const token = localStorage.getItem("token");
             const res = await fetch("http://localhost:5000/api/property/add", {
                 method: "POST",
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
                 body: form
             });
     
@@ -107,6 +111,7 @@ export default function AddProperty() {
     
             if (data.success) {
                 alert("Property Added Successfully!");
+                navigate("/listingPage");
             } else {
                 alert("Error: " + data.message);
             }

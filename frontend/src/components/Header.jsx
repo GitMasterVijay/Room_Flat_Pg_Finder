@@ -6,7 +6,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { name: "Home", path: "/" },
+    { name: "Home", path: "/user/home" },
     { name: "Properties", path: "/listingPage" },
     { name: "About Us", path: "/about" },
     { name: "Contact", path: "/contact" },
@@ -18,7 +18,7 @@ export default function Header() {
         
         {/* Logo */}
         <Link 
-          to="/" 
+          to="/user/home" 
           className="flex items-center gap-2" 
           onClick={() => setIsOpen(false)}
         >

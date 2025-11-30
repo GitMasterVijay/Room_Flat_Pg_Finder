@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
+import API from "../api/axios";
 
 // --- START: Lucide Icon Placeholders (For self-contained file) ---
 // In a real project, these would be imported from 'lucide-react'
@@ -57,6 +59,34 @@ export default function App() {
     const [selectedTypes, setSelectedTypes] = useState([]);
     const [selectedGenders, setSelectedGenders] = useState([]);
     const [maxRent, setMaxRent] = useState(50000);
+    const [listings, setListings] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const fetchListings = async () => {
+            try {
+                setLoading(true);
+                const res = await API.get("/property/list");
+                const mapped = (res.data.properties || []).map((p) => ({
+                    id: p._id,
+                    type: p.type,
+                    title: p.name,
+                    location: p.location,
+                    rent: p.price,
+                    amenities: p.amenities || [],
+                    imageUrl: p.images && p.images.length > 0 ? `http://localhost:5000/uploads/${p.images[0]}` : "https://placehold.co/600x400/CCCCCC/666666?text=No+Image",
+                    gender: "Mixed",
+                }));
+                setListings(mapped);
+            } catch (e) {
+                setError("Failed to load listings");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchListings();
+    }, []);
 
     const handleTypeToggle = (typeKey) => {
         if (selectedTypes.includes(typeKey)) {
@@ -75,7 +105,7 @@ export default function App() {
     };
 
     const filteredListings = useMemo(() => {
-        return ALL_LISTINGS.filter((item) => {
+        return listings.filter((item) => {
             const matchesSearch =
                 item.title.toLowerCase().includes(search.toLowerCase()) ||
                 item.location.toLowerCase().includes(search.toLowerCase());
@@ -95,7 +125,7 @@ export default function App() {
             // Combine all filters
             return matchesSearch && matchesType && matchesGender && matchesRent;
         });
-    }, [search, selectedTypes, selectedGenders, maxRent]); // Updated dependency array
+    }, [listings, search, selectedTypes, selectedGenders, maxRent]);
 
     // Custom class for the slider track color
     const sliderTrackStyle = {
@@ -210,7 +240,13 @@ export default function App() {
                     </div>
                 </div>
 
-                {/* ---------- Listings Grid ---------- */}
+                {loading && (
+                    <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-700 font-semibold">Loading listings...</div>
+                )}
+                {error && (
+                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 font-semibold">{error}</div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
 
                     {filteredListings.map((item) => {
@@ -274,11 +310,10 @@ export default function App() {
                                         </div>
                                     </div>
 
-                                    {/* Explore Space Button (Forced to bottom) */}
-                                    <button className="w-full py-3 rounded-xl bg-indigo-600 text-white font-semibold 
-                                        shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition duration-200 transform hover:scale-[1.01] mt-auto">
+                                    <Link to={`/property/${item.id}`} className="w-full py-3 rounded-xl bg-indigo-600 text-white font-semibold 
+                                        shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition duration-200 transform hover:scale-[1.01] mt-auto text-center">
                                         Explore Space
-                                    </button>
+                                    </Link>
 
                                 </div>
                             </div>

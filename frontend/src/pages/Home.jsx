@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import API from "../api/axios";
 import { Search, Home as HomeIcon, MapPin, CheckCircle, ArrowRight, TrendingUp, DollarSign, Users, Shield, Zap, Building } from "lucide-react";
 import UserFeedback from "../components/userFeedback"
 import RoomFinderAdvantage from "../components/RoomFinderAdvantage";
@@ -6,14 +8,32 @@ import ThreeSimpleStep from "../components/ThreeSimpleStep";
 import PopularCategoriesNearYou from "../components/PopularCategoriesNearYou"
 
 export default function Home() {
- 
- 
+  const [featured, setFeatured] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const properties = [
-    { title: "2BHK in Pune", location: "Hinjewadi Phase 1", price: "₹12,000/month", image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80", type: "Flat" },
-    { title: "Fully Furnished PG", location: "Dharampeth, Nagpur", price: "₹6,500/month", image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=400&q=80", type: "PG" },
-    { title: "1RK for Students", location: "Rajapeth, Amravati", price: "₹4,800/month", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80", type: "Room" },
-  ];
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        setLoading(true);
+        const res = await API.get("/property/list");
+        const list = (res.data.properties || []).slice(0, 6).map((p) => ({
+          id: p._id,
+          title: p.name,
+          location: p.location,
+          price: `₹${Number(p.price || 0).toLocaleString('en-IN')}/month`,
+          image: p.images && p.images.length > 0 ? `http://localhost:5000/uploads/${p.images[0]}` : "https://placehold.co/600x400/CCCCCC/666666?text=No+Image",
+          type: p.type,
+        }));
+        setFeatured(list);
+      } catch (e) {
+        setError("Failed to load featured properties");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeatured();
+  }, []);
 
 
   return (
@@ -88,10 +108,16 @@ export default function Home() {
             Featured Properties of the Week
           </h3>
 
+          {loading && (
+            <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-700 font-semibold">Loading featured properties...</div>
+          )}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 font-semibold">{error}</div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {properties.map((property) => (
+            {featured.map((property) => (
               <div
-                key={property.title}
+                key={property.id}
                 className="bg-white shadow-xl rounded-2xl overflow-hidden hover:shadow-indigo-500/20 transition duration-300 cursor-pointer border border-gray-100"
               >
                 <div className="relative">
@@ -112,9 +138,9 @@ export default function Home() {
                   </p>
                   <p className="font-extrabold text-2xl text-cyan-500 mt-3">{property.price}</p>
 
-                  <button className="mt-4 w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg">
+                  <Link to={`/property/${property.id}`} className="mt-4 block text-center w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg">
                     View Details
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}

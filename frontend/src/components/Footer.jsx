@@ -33,7 +33,7 @@ export default function Footer() {
 
         {/* 1. Logo + Branding + Socials (Spans 2 columns on large screens) */}
         <div className="col-span-2">
-          <Link to="/" className="flex items-center gap-2 mb-4">
+          <Link to="/user/home" className="flex items-center gap-2 mb-4">
             <Building2 className="w-8 h-8 text-indigo-600" />
             <h2 className="text-3xl font-extrabold text-gray-900 tracking-wide">
               Room<span className="text-cyan-500">Finder</span>
@@ -63,24 +63,13 @@ export default function Footer() {
           {/* Changed header text color */}
           <h3 className="text-gray-900 font-bold text-xl mb-4 border-b-2 border-indigo-600 inline-block pb-1">Navigation</h3>
           <ul className="space-y-3">
-            <LinkItem to="/">Home</LinkItem>
-            <LinkItem to="/properties">Properties</LinkItem>
-            <LinkItem to="/list-property">List Your Property</LinkItem>
+            <LinkItem to="/user/home">Home</LinkItem>
+            <LinkItem to="/listingPage">Properties</LinkItem>
             <LinkItem to="/about">About Us</LinkItem>
           </ul>
         </div>
 
-        {/* 3. Support & Legal */}
-        <div>
-          {/* Changed header text color */}
-          <h3 className="text-gray-900 font-bold text-xl mb-4 border-b-2 border-indigo-600 inline-block pb-1">Legal & Support</h3>
-          <ul className="space-y-3">
-            <LinkItem to="/help">Help Center</LinkItem>
-            <LinkItem to="/faqs">FAQs</LinkItem>
-            <LinkItem to="/privacy">Privacy Policy</LinkItem>
-            <LinkItem to="/terms">Terms & Conditions</LinkItem>
-          </ul>
-        </div>
+        {/* 3. Support & Legal removed */}
 
         {/* 4. Contact */}
         <div>

@@ -1,4 +1,6 @@
 import React from "react";
+import { useParams } from "react-router-dom";
+import API from "../api/axios";
 import {
   Wifi,
   Dumbbell,
@@ -142,7 +144,7 @@ const Gallery = ({ images, openModal }) => (
         className="h-32 md:h-46 rounded-2xl bg-gray-200 shadow-lg flex flex-col items-center justify-center text-sm font-bold text-indigo-700 border border-gray-300 transition-colors hover:bg-indigo-100/70"
       >
         <Maximize2 className="w-6 h-6 mb-1" />
-        View All ({DATA.images.length}) Photos
+        View All ({images.length}) Photos
       </button>
     </div>
   </div>
@@ -239,8 +241,61 @@ const MobileFooterCTA = ({ price, owner }) => (
 // MAIN PAGE COMPONENT
 // ---------------------------------------------------------
 export default function ViewPropertiesDetails() {
-  const p = DATA;
+  const { id } = useParams();
+  const [p, setP] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const fetchProperty = async () => {
+      try {
+        setLoading(true);
+        const res = await API.get(`/property/${id}`);
+        const prop = res.data.property || {};
+        const imgs = (prop.images || []).map((f) => `http://localhost:5000/uploads/${f}`);
+        const features = (prop.amenities || []).slice(0, 12).map((a) => {
+          const lower = String(a).toLowerCase();
+          let icon = "ShieldCheck";
+          if (lower.includes("wifi")) icon = "Wifi";
+          else if (lower.includes("gym")) icon = "Dumbbell";
+          else if (lower.includes("parking")) icon = "Car";
+          else if (lower.includes("water")) icon = "Droplets";
+          else if (lower.includes("bed")) icon = "BedDouble";
+          return { icon, name: a };
+        });
+        const owner = prop.ownerId ? {
+          name: prop.ownerId.fullName || "Owner",
+          phone: prop.ownerId.phone || "",
+          email: prop.ownerId.email || "",
+          role: "Owner",
+        } : { name: "Owner", phone: "", email: "", role: "Owner" };
+
+        setP({
+          title: prop.name || "",
+          type: prop.type || "",
+          status: prop.status || "",
+          address: prop.location || "",
+          price: `₹${Number(prop.price || 0).toLocaleString('en-IN')} / month`,
+          deposit: `₹${Number(prop.deposit || 0).toLocaleString('en-IN')}`,
+          area: `${prop.area || 0} sq.ft`,
+          beds: Number(prop.bedrooms || 0),
+          baths: Number(prop.bathrooms || 0),
+          floor: String(prop.floor || ''),
+          description: prop.description || "",
+          images: imgs.length ? imgs : ["https://placehold.co/1200x800/CCCCCC/666666?text=No+Image"],
+          features,
+          owner,
+          mapEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15132.894314488582!2d73.8055609425475!3d18.519082005481747!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2bf49b4566f1b%3A0xc3f95889758a0a9c!2sMIT%20College%20of%20Engineering!5e0!3m2!1sen!2sin!4v1700050962384!5m2!1sen!2sin",
+        });
+      } catch (e) {
+        setError("Failed to load property");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProperty();
+  }, [id]);
 
   // Quick Specs Bar Component
   const QuickSpecsBar = () => (
@@ -255,6 +310,24 @@ export default function ViewPropertiesDetails() {
     </div>
   );
 
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-4 md:p-8 bg-gray-50">
+        <div className="p-6 bg-indigo-50 border border-indigo-200 rounded-2xl text-indigo-700 font-bold">Loading property...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto p-4 md:p-8 bg-gray-50">
+        <div className="p-6 bg-red-50 border border-red-200 rounded-2xl text-red-700 font-bold">{error}</div>
+      </div>
+    );
+  }
+
+  if (!p) return null;
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 pb-20 lg:pb-8 bg-gray-50">
@@ -290,6 +363,40 @@ export default function ViewPropertiesDetails() {
 
             {/* Quick Specs Bar */}
             <QuickSpecsBar />
+
+            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100">
+                <h2 className="text-2xl font-bold text-indigo-700 mb-4 border-b pb-3">Details</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border">
+                        <span className="text-sm text-gray-500">Type</span>
+                        <span className="font-semibold text-gray-800">{p.type}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border">
+                        <span className="text-sm text-gray-500">Status</span>
+                        <span className="font-semibold text-gray-800">{p.status}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border">
+                        <span className="text-sm text-gray-500">Bedrooms</span>
+                        <span className="font-semibold text-gray-800">{p.beds}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border">
+                        <span className="text-sm text-gray-500">Bathrooms</span>
+                        <span className="font-semibold text-gray-800">{p.baths}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border">
+                        <span className="text-sm text-gray-500">Area</span>
+                        <span className="font-semibold text-gray-800">{p.area}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border">
+                        <span className="text-sm text-gray-500">Floor</span>
+                        <span className="font-semibold text-gray-800">{p.floor}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border">
+                        <span className="text-sm text-gray-500">Deposit</span>
+                        <span className="font-semibold text-gray-800">{p.deposit}</span>
+                    </div>
+                </div>
+            </div>
 
             {/* Features */}
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100">

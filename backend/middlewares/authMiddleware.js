@@ -16,3 +16,10 @@ export const auth = (req, res, next) => {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
+
+export const ownerOnly = (req, res, next) => {
+  if (!req.user || req.user.role !== "owner") {
+    return res.status(403).json({ message: "Owner access required" });
+  }
+  next();
+};

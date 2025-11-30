@@ -31,10 +31,8 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/listingPage" element={<ListingPage />} />
-        <Route
-          path="viewPropertiesDetails"
-          element={<ViewPropertiesDetails />}
-        />
+        <Route path="viewPropertiesDetails" element={<ViewPropertiesDetails />} />
+        <Route path="/property/:id" element={<ViewPropertiesDetails />} />
       </Route>
 
       {/* AUTH ROUTES (NO HEADER, NO FOOTER) */}
@@ -51,6 +49,7 @@ export default function App() {
         <Route path="ownerNotification" element={<OwnerNotifications />} />
         <Route path="ownerSetting" element={<OwnerSettings />} />
         <Route path="ownerProperties" element={<OwnerMyProperties />} />
+        <Route path="my-properties" element={<OwnerMyProperties />} />
 
         {/* ✅ Now it will work */}
       

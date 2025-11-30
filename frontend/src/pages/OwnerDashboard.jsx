@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import API from "../api/axios";
 import { 
     FaWallet, FaUserTie, FaClipboardList, FaMapMarkerAlt, FaHome, 
     FaRupeeSign, FaChartBar, FaChevronRight, FaPlus, FaCheckCircle, FaExclamationCircle
@@ -21,11 +22,7 @@ export default function OwnerDashboardV2() {
         pendingPayments: 3,
     };
 
-    const properties = [
-        { id: 1, name: "City Center Flat", location: "Pune, Viman Nagar", status: "Leased", monthlyRent: "₹18,500" },
-        { id: 2, name: "Bachelors PG", location: "Nagpur, Dharampeth", status: "Available", monthlyRent: "₹7,200" },
-        { id: 3, name: "Studio Apartment", location: "Bengaluru, Whitefield", status: "Leased", monthlyRent: "₹11,000" },
-    ];
+    const [properties, setProperties] = useState([]);
 
     const tasks = [
         { id: 1, description: "Review tenant screening for City Center Flat", urgency: "High" },
@@ -56,6 +53,27 @@ export default function OwnerDashboardV2() {
         animateCount(TARGET_UNITS, setActiveUnits);
         animateCount(TARGET_OCCUPANCY, setOccupancyRate);
         animateCount(TARGET_COLLECTION, setRentCollected);
+    }, []);
+
+    useEffect(() => {
+        const fetchMy = async () => {
+            try {
+                const res = await API.get("/property/my");
+                const list = (res.data.properties || []).map((p) => ({
+                    id: p._id,
+                    name: p.name,
+                    location: p.location,
+                    status: p.status === 'Not Available' ? 'Unavailable' : 'Available',
+                    monthlyRent: `₹${Number(p.price || 0).toLocaleString('en-IN')}`,
+                }));
+                setProperties(list);
+                // Adjust metrics target to real count if desired
+                // setActiveUnits(list.length);
+            } catch (e) {
+                // Keep properties empty on error
+            }
+        };
+        fetchMy();
     }, []);
 
     // --- Component Definitions ---

@@ -1,60 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, Edit, Trash2, Eye, ShieldCheck, DollarSign, Home, TrendingUp, Filter, SortAsc, AlertTriangle, X, Upload, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-// Sample Property Data
-const initialProperties = [
-    {
-        id: 1,
-        title: "Luxury 2BHK Flat - Near IT Park",
-        location: "Hinjewadi Phase 3, Pune",
-        price: 15000,
-        type: "Flat",
-        status: "Active", // Active, Pending, Rented
-        bookings: 3,
-        views: 1250,
-        image: "https://images.unsplash.com/photo-1560518883-205a2e52b2c5?auto=format&fit=crop&w=300&q=80",
-        verified: true,
-        description: "Spacious 2BHK apartment with modern amenities, ideal for families. Close to major IT companies and schools. Features include a modular kitchen, balcony, and covered parking. Excellent connectivity to public transport.",
-        amenities: ["AC", "WiFi", "Parking", "Gym", "Power Backup"],
-    },
-    {
-        id: 2,
-        title: "Girls PG - Fully Furnished",
-        location: "Dharampeth, Nagpur",
-        price: 7500,
-        type: "PG",
-        status: "Rented",
-        bookings: 10,
-        views: 4500,
-        image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=300&q=80",
-        verified: true,
-        description: "Comfortable and safe PG for girls with all necessary facilities. Includes meals, laundry, and 24/7 security. Located in a prime area with easy access to colleges and markets.",
-        amenities: ["Meals", "Laundry", "WiFi", "24/7 Security", "Study Area"],
-    },
-    {
-        id: 3,
-        title: "Budget 1RK for Students",
-        location: "Rajapeth, Amravati",
-        price: 4800,
-        type: "Room",
-        status: "Pending",
-        bookings: 0,
-        views: 320,
-        image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=300&q=80",
-        verified: false,
-        description: "Affordable 1RK room suitable for students. Basic amenities provided. Quiet neighborhood close to university campus.",
-        amenities: ["Bed", "Table", "Fan", "Attached Bathroom"],
-    },
-];
+import API from "../api/axios";
 
 export default function OwnerMyProperties() {
-    const [properties, setProperties] = useState(initialProperties);
+    const [properties, setProperties] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [sortBy, setSortBy] = useState('date'); // views, price, date
     const [editingPropertyId, setEditingPropertyId] = useState(null); // State for which property is being edited
     const [editFormData, setEditFormData] = useState({}); // State for form data
+
+    useEffect(() => {
+        const fetchMy = async () => {
+            try {
+                const res = await API.get("/property/my");
+                const list = (res.data.properties || []).map((p, idx) => ({
+                    id: p._id,
+                    title: p.name,
+                    location: p.location,
+                    price: Number(p.price || 0),
+                    type: p.type,
+                    status: p.status === 'Not Available' ? 'Pending' : 'Active',
+                    views: 0,
+                    bookings: 0,
+                    image: p.images && p.images.length > 0 ? `http://localhost:5000/uploads/${p.images[0]}` : "https://placehold.co/300x200/CCCCCC/666666?text=No+Image",
+                    verified: true,
+                    description: p.description || '',
+                    amenities: p.amenities || [],
+                }));
+                setProperties(list);
+            } catch (e) {
+                setProperties([]);
+            }
+        };
+        fetchMy();
+    }, []);
+
+    
 
     // --- Utility Functions ---
 
@@ -67,14 +50,18 @@ export default function OwnerMyProperties() {
         }
     };
 
-    const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this property listing? This action cannot be undone.')) {
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this property listing? This action cannot be undone.')) return;
+        try {
+            await API.delete(`/property/${id}`);
             setProperties(properties.filter(p => p.id !== id));
-            // If the deleted property was being edited, close the form
             if (editingPropertyId === id) {
                 setEditingPropertyId(null);
                 setEditFormData({});
             }
+            alert('Property deleted successfully');
+        } catch (e) {
+            alert('Failed to delete property');
         }
     };
 
@@ -100,14 +87,41 @@ export default function OwnerMyProperties() {
         }));
     };
 
-    const handleEditFormSubmit = (e) => {
+    const handleEditFormSubmit = async (e) => {
         e.preventDefault();
-        setProperties(properties.map(p =>
-            p.id === editingPropertyId ? { ...editFormData, price: parseFloat(editFormData.price) } : p
-        ));
-        setEditingPropertyId(null); // Close the form
-        setEditFormData({}); // Clear form data
-        alert('Property updated successfully!');
+        const mapStatus = (s) => (s === 'Active' ? 'Available' : 'Not Available');
+        const payload = {
+            name: editFormData.title,
+            type: editFormData.type,
+            location: editFormData.location,
+            price: Number(editFormData.price || 0),
+            description: editFormData.description,
+            amenities: editFormData.amenities || [],
+            status: mapStatus(editFormData.status || 'Active'),
+        };
+        try {
+            const res = await API.put(`/property/${editingPropertyId}`, payload);
+            const updated = res.data.property;
+            setProperties(properties.map(p =>
+                p.id === editingPropertyId
+                    ? {
+                        ...p,
+                        title: updated.name,
+                        location: updated.location,
+                        price: Number(updated.price || 0),
+                        type: updated.type,
+                        status: updated.status === 'Not Available' ? 'Pending' : 'Active',
+                        description: updated.description || '',
+                        amenities: updated.amenities || [],
+                    }
+                    : p
+            ));
+            setEditingPropertyId(null);
+            setEditFormData({});
+            alert('Property updated successfully!');
+        } catch (err) {
+            alert('Failed to update property');
+        }
     };
 
     // --- Filtering and Sorting Logic ---
