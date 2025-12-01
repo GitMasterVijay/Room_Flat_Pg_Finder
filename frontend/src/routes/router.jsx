@@ -19,6 +19,7 @@ import OwnerProfile from "../pages/OwnerProfile"; // IMPORTANT: This was missing
 
 
 import ViewPropertiesDetails from "../components/ViewPropertiesDetails";
+import Feedback from "../pages/Feedback";
 
 const router = createBrowserRouter([
   // 🔥 1 — AUTH PAGES (NO HEADER/FOOTER)
@@ -54,12 +55,13 @@ const router = createBrowserRouter([
       { path: "/contact", element: <Contact /> },
       { path: "/listingPage", element: <ListingPage /> },
 
-     
+      
       { 
         path: "/viewPropertiesDetails", 
         element: <ViewPropertiesDetails /> 
-      }
- 
+      },
+      { path: "/feedback", element: <Feedback /> }
+
     ],
   },
 ]);

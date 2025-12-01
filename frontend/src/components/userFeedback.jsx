@@ -15,6 +15,7 @@ export default function ReviewCard() {
 
     const [dynamic, setDynamic] = React.useState([]);
     React.useEffect(() => {
+        let active = true;
         const load = async () => {
             try {
                 const res = await API.get("/feedback");
@@ -24,12 +25,14 @@ export default function ReviewCard() {
                     name: f.name,
                     post: `${f.location} • ${f.type}${f.propertyName ? ` • ${f.propertyName}` : ''}`
                 }));
-                setDynamic(items.reverse());
+                if (active) setDynamic(items.reverse());
             } catch (_) {
-                setDynamic([]);
+                if (active) setDynamic([]);
             }
         };
         load();
+        const t = setInterval(load, 10000);
+        return () => { active = false; clearInterval(t); };
     }, []);
 
     const settings = {

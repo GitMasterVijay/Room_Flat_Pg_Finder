@@ -27,9 +27,13 @@ export default function Login() {
     setLoading(true);
 
     try {
+      const payload = {
+        email: String(formData.email || "").trim(),
+        password: String(formData.password || "").trim(),
+      };
       const res = await axios.post(
         "http://localhost:5000/api/auth/login",
-        formData
+        payload
       );
 
       if (res.data.success) {

@@ -18,6 +18,7 @@ import OwnerNotifications from "./pages/OwnerNotifications";
 import OwnerSettings from "./pages/OwnerSettings";
 import OwnerMyProperties from "./pages/OwnerMyProperties";
 import ListingPage from "./pages/ListingCard";
+import Feedback from "./pages/Feedback";
 
 // ✅ Missing import added
 import ViewPropertiesDetails from "./components/ViewPropertiesDetails";
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/listingPage" element={<ListingPage />} />
+        <Route path="/feedback" element={<Feedback />} />
         <Route path="viewPropertiesDetails" element={<ViewPropertiesDetails />} />
         <Route path="/property/:id" element={<ViewPropertiesDetails />} />
         <Route path="/complaints" element={<Complaints />} />
