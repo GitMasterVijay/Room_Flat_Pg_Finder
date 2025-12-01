@@ -9,6 +9,7 @@ import PopularCategoriesNearYou from "../components/PopularCategoriesNearYou"
 import Slider from "react-slick";
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import ListingCard from "../pages/ListingCard"
 
 export default function Home() {
   const [featured, setFeatured] = useState([]);
@@ -52,9 +53,9 @@ export default function Home() {
           className="h-[85vh]"
         >
           {[
+            "https://i.pinimg.com/1200x/43/f9/24/43f924d15e1b0d1b1f9db8a6ab60b3ea.jpg",
             "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80&fm=jpg&crop=entropy",
-            "https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=1600&q=80&fm=jpg&crop=entropy",
-            "https://images.unsplash.com/photo-1502005229762-cf1b0a7c60a3?w=1600&q=80&fm=jpg&crop=entropy",
+            "https://i.pinimg.com/736x/3e/3e/c6/3e3ec6ad405e9f9a331131773c9c9da7.jpg",
           ].map((src, idx) => (
             <div key={idx} className="relative w-full h-[85vh]">
               <img src={src} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-70" />
@@ -69,16 +70,7 @@ export default function Home() {
                 <p className="text-xl md:text-2xl mb-8 font-light text-gray-200">
                   Rooms, PGs, and Flats—Directly from Owners. Zero Brokerage.
                 </p>
-                {/* <div className="max-w-2xl mx-auto flex bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
-                  <input
-                    type="text"
-                    placeholder="Enter City, Locality, or Property Type (e.g., Pune, PG for Girls)..."
-                    className="flex-1 px-6 py-4 text-lg text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-indigo-500 rounded-l-xl"
-                  />
-                  <button className="bg-indigo-600 px-8 py-4 text-lg font-bold flex items-center gap-2 hover:bg-indigo-700 transition">
-                    <Search size={22} /> Search
-                  </button>
-                </div> */}
+               
                 <div className="flex justify-center gap-4 mt-6">
                   {['PG', 'Flat', 'Room'].map((type) => (
                     <button
@@ -109,9 +101,7 @@ export default function Home() {
       {/* ================= 3. FEATURED PROPERTIES (Modern Cards) ================= */}
       <section className="py-16 px-4 bg-gray-50"> {/* Added light gray background for visual separation */}
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-sm font-semibold text-indigo-600 uppercase tracking-wider mb-2 text-center">
-            Prime Picks
-          </h2>
+          
           <h3 className="text-4xl font-bold text-center mb-12 text-gray-900">
             Featured Properties of the Week
           </h3>
@@ -154,11 +144,15 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <button className="text-indigo-600 font-semibold text-lg flex items-center gap-2 mx-auto hover:gap-3 transition-all">
-              See All Listings <ArrowRight size={20} />
+        <div className="text-center mt-12">
+          <Link to="/listingPage">
+
+            <button className="hover:text-indigo-500  font-semibold text-lg flex items-center gap-2 mx-auto hover:gap-3 transition-all hover:cursor-pointer   px-6 py-2 rounded-full">
+
+              See All Listingssss <ArrowRight size={20} />
             </button>
-          </div>
+          </Link>
+        </div>
         </div>
       </section>
 
