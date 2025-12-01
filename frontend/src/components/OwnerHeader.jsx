@@ -1,30 +1,63 @@
-import { useState } from "react";
+ import { useState, useRef, useEffect } from "react";
 // Switched to lucide-react for consistent icon styling
-import { Bell, UserCircle, Menu, X, Home, LayoutDashboard, PlusCircle, Building2, ChevronDown, LogOut, Settings, User } from "lucide-react"; 
-import { Link } from "react-router-dom";
+import { Bell, UserCircle, Menu, X, Home, LayoutDashboard, PlusCircle, Building2, ChevronDown, LogOut, User } from "lucide-react"; 
+import { Link, useNavigate } from "react-router-dom";
+
+// Helper hook to close a dropdown/modal when clicking outside
+const useClickOutside = (ref, handler) => {
+  useEffect(() => {
+    const listener = (event) => {
+      // Do nothing if clicking ref's element or descendant elements
+      if (!ref.current || ref.current.contains(event.target)) {
+        return;
+      }
+      handler(event);
+    };
+    document.addEventListener("mousedown", listener);
+    document.addEventListener("touchstart", listener);
+    return () => {
+      document.removeEventListener("mousedown", listener);
+      document.removeEventListener("touchstart", listener);
+    };
+  }, [ref, handler]);
+};
 
 
 export default function OwnerHeader() {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  
+  const profileRef = useRef();
+  // Close profile dropdown when clicking outside
+  useClickOutside(profileRef, () => setProfileOpen(false));
 
-  // Helper to close both menus when navigating
+
+  // Helper to close all menus when navigating
   const closeMenus = () => {
     setMenuOpen(false);
     setProfileOpen(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    closeMenus();
+    // Redirect to login page after logout
+    navigate('/login'); 
+  };
+
+
   return (
-    // Switched to white theme with shadow and border
-    <header className="bg-white text-gray-900 shadow-lg border-b border-gray-100 sticky top-0 z-50">
+    // Added backdrop-blur for a modern, slightly transparent look
+    <header className="bg-white/95 backdrop-blur text-gray-900 shadow-lg border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
         
         {/* Logo / Title */}
         <Link to="/owner/dashboard" className="flex items-center gap-2" onClick={closeMenus}>
-            <Building2 className="w-6 h-6 text-indigo-600" /> 
-            <div className="text-xl font-extrabold tracking-wide">
-                RoomFinder <span className="text-cyan-500">Owner</span>
-            </div>
+          <Building2 className="w-6 h-6 text-indigo-600" /> 
+          <div className="text-xl font-extrabold tracking-wide">
+            RoomFinder <span className="text-cyan-500">Owner</span>
+          </div>
         </Link>
 
         {/* Desktop Navigation */}
@@ -37,18 +70,18 @@ export default function OwnerHeader() {
           </Link>
           
           <Link 
-            to="/owner/addProperties" 
-            // Primary action button styling using Indigo theme
-            className="flex items-center gap-1 bg-indigo-600 text-white px-4 py-1.5 rounded-full font-semibold hover:bg-indigo-700 transition"
-          >
-            <PlusCircle size={18} /> Add Property
-          </Link>
-
-          <Link 
             to="/owner/ownerProperties" 
             className="flex items-center gap-1 text-gray-700 hover:text-indigo-600 transition"
           >
             <Home size={18} /> My Listings
+          </Link>
+
+          <Link 
+            to="/owner/addProperties" 
+            // Primary action button styling using Indigo theme
+            className="flex items-center gap-1 bg-indigo-600 text-white px-4 py-1.5 rounded-full font-semibold hover:bg-indigo-700 transition shadow-md"
+          >
+            <PlusCircle size={18} /> Add Property
           </Link>
         </nav>
 
@@ -56,75 +89,96 @@ export default function OwnerHeader() {
         <div className="flex items-center gap-2 sm:gap-4">
           
           {/* Notifications Bell */}
-          <button className="relative p-2 text-gray-700 hover:bg-gray-100 rounded-full transition">
-              <Link to="/owner/ownerNotification" onClick={closeMenus} ><Bell className="text-xl" /></Link>
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-          </button>
+          <Link to="/owner/ownerNotification" onClick={closeMenus} className="relative p-2 text-gray-700 hover:bg-gray-100 rounded-full transition" aria-label="Notifications">
+             <Bell className="w-6 h-6" />
+             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+          </Link>
 
-          {/* Profile Dropdown */}
-          <div className="relative">
+          {/* Profile Dropdown (Desktop Only) */}
+          <div className="hidden relative md:block" ref={profileRef}>
             <button 
                 className="flex items-center gap-1 md:gap-2 text-gray-800 hover:bg-gray-100 p-2 rounded-full transition"
                 onClick={() => setProfileOpen(!profileOpen)}
+                aria-expanded={profileOpen}
             >
-              <UserCircle className="text-2xl text-indigo-600" />
-              <span className="hidden sm:inline font-semibold">Owner Name</span>
-              <ChevronDown size={18} className={`hidden sm:block transition-transform ${profileOpen ? 'rotate-180' : 'rotate-0'}`}/>
+              <UserCircle className="w-7 h-7 text-indigo-600" />
+              <span className="hidden sm:inline font-semibold text-sm">Owner Name</span>
+              <ChevronDown size={18} className={`hidden sm:block text-gray-500 transition-transform ${profileOpen ? 'rotate-180' : 'rotate-0'}`}/>
             </button>
             
             {/* Dropdown menu content */}
             {profileOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-white text-gray-800 rounded-lg shadow-xl py-2 border border-gray-200 animate-slideDown z-50">
-                    <Link to="/owner/ownerProfile" onClick={closeMenus} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-700 transition">
-                        <User size={18} className="text-indigo-500" /> Profile
-                    </Link>
-                    {/* <Link to="/owner/ownerSetting" onClick={closeMenus} className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-gray-700 transition">
-                        <Settings size={18} className="text-indigo-500" /> Settings
-                    </Link> */}
-                    <div className="border-t border-gray-100 my-1"></div>
-                    <Link to="/login" onClick={closeMenus} className="flex items-center gap-2 px-4 py-2 hover:bg-red-50 text-red-600 transition">
-                        <LogOut size={18} /> Logout
-                    </Link>
-                </div>
+              <div className="absolute right-0 mt-2 w-52 bg-white text-gray-800 rounded-xl shadow-2xl py-2 border border-gray-200 z-50">
+                <Link to="/owner/ownerProfile" onClick={closeMenus} className="flex items-center gap-2 px-4 py-2 hover:bg-indigo-50 text-gray-700 transition">
+                  <User size={18} className="text-indigo-500" /> Profile
+                </Link>
+                {/* Removed Settings since it was commented out in the original code */}
+                <div className="border-t border-gray-100 my-1"></div>
+                <button 
+                    onClick={handleLogout} 
+                    className="w-full text-left flex items-center gap-2 px-4 py-2 hover:bg-red-50 text-red-600 transition"
+                >
+                  <LogOut size={18} /> Logout
+                </button>
+              </div>
             )}
           </div>
 
           {/* Mobile menu button */}
           <button
             className="md:hidden p-2 rounded text-gray-800 hover:bg-gray-100 transition"
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={() => { setMenuOpen(!menuOpen); setProfileOpen(false); }} // Close profile when opening menu
+            aria-expanded={menuOpen}
+            aria-label="Toggle mobile menu"
           >
-            {menuOpen ? <X className="text-2xl" /> : <Menu className="text-2xl" />}
+            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
           
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu (Full-width dropdown) */}
       {menuOpen && (
-        // Mobile menu uses light background with strong indigo accents
-        <nav className="md:hidden bg-gray-50 px-4 py-2 flex flex-col gap-1.5 transition-all duration-300 border-t border-gray-200">
+        // Added max-h-screen and overflow-y-auto to handle content that exceeds screen height
+        <nav className="md:hidden absolute w-full bg-white shadow-xl px-4 py-3 flex flex-col gap-1.5 transition-all duration-300 border-t border-gray-200">
+          
+          {/* Main Navigation Links */}
           <Link 
             to="/owner/dashboard" 
             onClick={closeMenus}
-            className="flex items-center gap-2 px-4 py-2 rounded font-medium text-gray-800 hover:bg-indigo-100 hover:text-indigo-700 transition"
+            className="flex items-center gap-3 px-4 py-2 rounded-lg font-medium text-lg text-gray-800 hover:bg-indigo-100 hover:text-indigo-700 transition"
           >
-            <LayoutDashboard size={18} className="text-indigo-500"/> Dashboard
+            <LayoutDashboard size={20} className="text-indigo-500"/> Dashboard
           </Link>
           <Link 
-            to="/owner/my-properties" 
+            to="/owner/ownerProperties" 
             onClick={closeMenus}
-            className="flex items-center gap-2 px-4 py-2 rounded font-medium text-gray-800 hover:bg-indigo-100 hover:text-indigo-700 transition"
+            className="flex items-center gap-3 px-4 py-2 rounded-lg font-medium text-lg text-gray-800 hover:bg-indigo-100 hover:text-indigo-700 transition"
           >
-            <Home size={18} className="text-indigo-500"/> My Listings
+            <Home size={20} className="text-indigo-500"/> My Listings
           </Link>
+
+          {/* Add Property Button (Primary action) */}
           <Link 
             to="/owner/addProperties" 
             onClick={closeMenus}
-            className="flex items-center gap-2 px-4 py-2 rounded font-medium text-white bg-cyan-600 hover:bg-cyan-500 mt-1 transition"
+            className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-white bg-indigo-600 hover:bg-indigo-700 mt-2 mb-1 transition shadow-md"
           >
-            <PlusCircle size={18} /> Add Property
+            <PlusCircle size={20} /> Add New Property
           </Link>
+          
+          <div className="border-t border-gray-200 my-2"></div>
+          
+          {/* Profile & Logout Links (For Mobile) */}
+          <Link to="/owner/ownerProfile" onClick={closeMenus} className="flex items-center gap-3 px-4 py-2 rounded-lg font-medium text-lg text-gray-800 hover:bg-indigo-100 hover:text-indigo-700 transition">
+            <User size={20} className="text-indigo-500" /> Profile
+          </Link>
+          <button 
+            onClick={handleLogout} 
+            className="w-full text-left flex items-center gap-3 px-4 py-2 rounded-lg font-medium text-lg text-red-600 hover:bg-red-50 transition"
+          >
+            <LogOut size={20} /> Logout
+          </button>
         </nav>
       )}
     </header>
