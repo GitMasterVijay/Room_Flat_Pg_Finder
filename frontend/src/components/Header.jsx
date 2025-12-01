@@ -16,7 +16,7 @@ export default function Header() {
       try {
         const res = await API.get("/auth/me");
         setMe(res.data.user);
-      } catch (_) {
+      } catch {
         setMe(null);
       }
     };
@@ -28,6 +28,7 @@ export default function Header() {
     { name: "Properties", path: "/listingPage" },
     { name: "About Us", path: "/about" },
     { name: "Contact", path: "/contact" },
+    { name: "Complaints", path: "/complaints" },
   ];
 
   return (
@@ -95,6 +96,7 @@ export default function Header() {
                     <p className="text-sm font-bold text-gray-900">{me.fullName}</p>
                     <p className="text-xs text-gray-600">{me.email}</p>
                   </div>
+                  <Link to="/user/profile" className="block text-sm font-medium text-gray-700 hover:underline">My Profile</Link>
                   <button onClick={() => { setFeedbackOpen(true); setProfileOpen(false); }} className="block text-sm font-medium text-indigo-600 hover:underline">Give Feedback</button>
                   <button
                     onClick={() => { localStorage.removeItem('token'); window.location.href = '/login'; }}
@@ -106,6 +108,7 @@ export default function Header() {
               )}
             </div>
           )}
+          
         </div>
 
         {/* Mobile Menu Button */}

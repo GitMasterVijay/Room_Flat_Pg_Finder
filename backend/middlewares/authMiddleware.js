@@ -8,7 +8,8 @@ export const auth = (req, res, next) => {
       return res.status(401).json({ message: "No token provided" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const secret = process.env.JWT_SECRET || "dev_secret";
+    const decoded = jwt.verify(token, secret);
     req.user = decoded; // user info (id + role)
 
     next();
@@ -18,8 +19,12 @@ export const auth = (req, res, next) => {
 };
 
 export const ownerOnly = (req, res, next) => {
-  if (!req.user || req.user.role !== "owner") {
+  try {
+    if (!req.user || req.user.role !== "owner") {
+      return res.status(403).json({ message: "Owner access required" });
+    }
+    next();
+  } catch (error) {
     return res.status(403).json({ message: "Owner access required" });
   }
-  next();
 };

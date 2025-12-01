@@ -21,7 +21,7 @@ const propertySchema = new mongoose.Schema({
   gender: { type: String, enum: ["Male", "Female", "Mixed"], default: "Mixed" },
   mapUrl: { type: String },
 
-  images: { type: [String], required: true },
+  images: { type: [String], default: [] },
 
   ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 
@@ -29,7 +29,15 @@ const propertySchema = new mongoose.Schema({
     name: { type: String, required: true },
     phone: { type: String, required: true },
     time: { type: String, required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    status: { type: String, enum: ["pending", "confirmed", "rejected"], default: "pending" },
     createdAt: { type: Date, default: Date.now }
+  }],
+
+  tenants: [{
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    status: { type: String, enum: ["admitted"], default: "admitted" },
+    admittedAt: { type: Date, default: Date.now }
   }],
 }, { timestamps: true });
 

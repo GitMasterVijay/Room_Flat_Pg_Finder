@@ -1,4 +1,5 @@
 import Property from "../models/propertyModel.js";
+import User from "../models/User.js";
 
 export const addProperty = async (req, res) => {
   try {
@@ -24,9 +25,6 @@ export const addProperty = async (req, res) => {
     }
 
     const imagePaths = (req.files || []).map((file) => file.filename);
-    if (imagePaths.length === 0) {
-      return res.status(400).json({ success: false, message: "At least one image is required" });
-    }
 
     const amenitiesArr = Array.isArray(amenities)
       ? amenities
@@ -152,9 +150,106 @@ export const addVisitRequest = async (req, res) => {
     }
     const property = await Property.findById(req.params.id);
     if (!property) return res.status(404).json({ success: false, message: "Property not found" });
-    property.visits.push({ name, phone, time });
+    const userId = req.user?.id || req.body.userId;
+    property.visits.push({ name, phone, time, userId, status: "pending" });
+    property.markModified("visits");
     await property.save();
     return res.json({ success: true, message: "Visit scheduled", visits: property.visits });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const confirmVisit = async (req, res) => {
+  try {
+    const property = await Property.findById(req.params.id);
+    if (!property) return res.status(404).json({ success: false, message: "Property not found" });
+    const v = property.visits.id(req.params.visitId);
+    if (!v) return res.status(404).json({ success: false, message: "Visit not found" });
+    v.status = "confirmed";
+    if (!v.userId) {
+      const userMatch = await User.findOne({ phone: v.phone }).select("_id");
+      if (userMatch) {
+        v.userId = userMatch._id;
+      }
+    }
+    if (v.userId) {
+      const exists = property.tenants.find((t) => String(t.userId) === String(v.userId));
+      if (!exists) {
+        property.tenants.push({ userId: v.userId, status: "admitted" });
+        property.markModified("tenants");
+      }
+    }
+    property.markModified("visits");
+    await property.save();
+    return res.json({ success: true, message: "Visit confirmed", visit: v, tenants: property.tenants });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const rejectVisit = async (req, res) => {
+  try {
+    const property = await Property.findById(req.params.id);
+    if (!property) return res.status(404).json({ success: false, message: "Property not found" });
+    const v = property.visits.id(req.params.visitId);
+    if (!v) return res.status(404).json({ success: false, message: "Visit not found" });
+    v.status = "rejected";
+    property.markModified("visits");
+    await property.save();
+    return res.json({ success: true, message: "Visit rejected", visit: v });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const admitStudent = async (req, res) => {
+  try {
+    const { userId, visitId } = req.body;
+    const property = await Property.findById(req.params.id);
+    if (!property) return res.status(404).json({ success: false, message: "Property not found" });
+    if (visitId) {
+      const v = property.visits.id(visitId);
+      if (v) v.status = "confirmed";
+      property.markModified("visits");
+    }
+    if (!userId) return res.status(400).json({ success: false, message: "Missing userId" });
+    const exists = property.tenants.find((t) => String(t.userId) === String(userId));
+    if (!exists) {
+      property.tenants.push({ userId, status: "admitted" });
+      property.markModified("tenants");
+    }
+    await property.save();
+    return res.json({ success: true, message: "Student admitted", tenants: property.tenants });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const listMyAdmissions = async (req, res) => {
+  try {
+    const me = await User.findById(req.user.id).select("phone");
+    const candidates = await Property.find({
+      $or: [
+        { "tenants.userId": req.user.id },
+        { visits: { $elemMatch: { status: "confirmed", $or: [ { userId: req.user.id }, { phone: me?.phone } ] } } },
+      ],
+    }).select("name location tenants visits");
+
+    const saves = [];
+    for (const p of candidates) {
+      const hasTenant = p.tenants.some((t) => String(t.userId) === String(req.user.id));
+      const hasConfirmedVisit = p.visits.some((v) => v.status === "confirmed" && (String(v.userId) === String(req.user.id) || (me?.phone && v.phone === me.phone)));
+      if (hasConfirmedVisit && !hasTenant) {
+        p.tenants.push({ userId: req.user.id, status: "admitted" });
+        p.markModified("tenants");
+        saves.push(p.save());
+      }
+    }
+    if (saves.length) await Promise.all(saves);
+
+    const finalProps = await Property.find({ "tenants.userId": req.user.id }).select("name location tenants");
+    return res.json({ success: true, properties: finalProps });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }

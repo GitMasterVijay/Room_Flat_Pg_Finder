@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import API from "../api/axios";
-import { KeyRound, Mail, CheckCircle } from "lucide-react";
+import { Key, Mail, CheckCircle } from "lucide-react";
 
 export default function ForgotPassword() {
   const [step, setStep] = useState(1);
@@ -51,7 +51,7 @@ export default function ForgotPassword() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 sm:p-8">
       <div className="bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-xl border border-gray-100 p-8">
         <h1 className="text-3xl font-extrabold text-gray-900 mb-6 flex items-center gap-2">
-          <KeyRound className="text-indigo-600" /> Forgot Password
+          <Key className="text-indigo-600" /> Forgot Password
         </h1>
         {step === 1 && (
           <form onSubmit={requestCode} className="space-y-6">
@@ -110,6 +110,9 @@ export default function ForgotPassword() {
         {msg && (
           <p className="mt-4 text-sm text-indigo-600 flex items-center gap-2"><CheckCircle className="w-4 h-4" />{msg}</p>
         )}
+        <div className="mt-6 text-sm">
+          <a href="/login" className="text-gray-600 hover:text-indigo-600 font-medium">Back to Login</a>
+        </div>
       </div>
     </div>
   );

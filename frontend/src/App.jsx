@@ -21,6 +21,8 @@ import ListingPage from "./pages/ListingCard";
 
 // ✅ Missing import added
 import ViewPropertiesDetails from "./components/ViewPropertiesDetails";
+import Complaints from "./pages/Complaints";
+import UserProfile from "./pages/UserProfile";
 
 export default function App() {
   return (
@@ -36,6 +38,8 @@ export default function App() {
         <Route path="/listingPage" element={<ListingPage />} />
         <Route path="viewPropertiesDetails" element={<ViewPropertiesDetails />} />
         <Route path="/property/:id" element={<ViewPropertiesDetails />} />
+        <Route path="/complaints" element={<Complaints />} />
+        <Route path="/user/profile" element={<UserProfile />} />
       </Route>
 
       {/* AUTH ROUTES (NO HEADER, NO FOOTER) */}

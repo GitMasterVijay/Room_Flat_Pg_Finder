@@ -249,6 +249,7 @@ export default function ViewPropertiesDetails() {
   const [visitOpen, setVisitOpen] = React.useState(false);
   const [visitForm, setVisitForm] = React.useState({ name: "", phone: "", time: "" });
   const [visitStatus, setVisitStatus] = React.useState("");
+  
 
   React.useEffect(() => {
     const fetchProperty = async () => {
@@ -278,11 +279,11 @@ export default function ViewPropertiesDetails() {
           const s = String(raw || "").trim();
           if (!s) return `https://maps.google.com/maps?q=${encodeURIComponent(address || "")}\u0026z=15\u0026output=embed`;
           if (s.includes("/embed") || s.includes("output=embed")) return s;
-          if (/maps\.app\.goo\.gl|goo\.gl\/maps/i.test(s)) {
+          if (s.includes("maps.app.goo.gl") || s.includes("goo.gl/maps")) {
             return `https://maps.google.com/maps?q=${encodeURIComponent(address || "")}\u0026z=15\u0026output=embed`;
           }
           let m = s.match(/@(-?\d+\.\d+),\s*(-?\d+\.\d+)/);
-          if (!m) m = s.match(/q=([-?\d\.]+),([-?\d\.]+)/);
+          if (!m) m = s.match(/q=([-?\d.]+),([-?\d.]+)/);
           if (m) {
             const lat = m[1];
             const lng = m[2];
@@ -310,7 +311,7 @@ export default function ViewPropertiesDetails() {
           owner,
           mapEmbed: embed,
         });
-      } catch (e) {
+      } catch {
         setError("Failed to load property");
       } finally {
         setLoading(false);
@@ -318,6 +319,16 @@ export default function ViewPropertiesDetails() {
     };
     fetchProperty();
   }, [id]);
+
+  React.useEffect(() => {
+    const loadMe = async () => {
+      try {
+        const res = await API.get("/auth/me");
+        setVisitForm((prev)=> ({...prev, name: res.data.user.fullName || prev.name, phone: res.data.user.phone || prev.phone }));
+      } catch {}
+    };
+    loadMe();
+  }, []);
 
   // Quick Specs Bar Component
   const QuickSpecsBar = () => (
@@ -475,6 +486,11 @@ export default function ViewPropertiesDetails() {
               onSubmit={async (e) => {
                 e.preventDefault();
                 setVisitStatus("");
+                const token = localStorage.getItem("token");
+                if (!token) {
+                  setVisitStatus("Please sign in to schedule a visit");
+                  return;
+                }
                 try {
                   const res = await API.post(`/property/${id}/visit`, visitForm);
                   if (res.data.success) {
