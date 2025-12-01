@@ -1,4 +1,5 @@
 import { Zap, Target, ShieldCheck, PhoneCall, Users, Home } from "lucide-react";
+import VijayImage from "../assets/VijayHiwale.jpg"
 
 export default function About() {
   return (
@@ -148,42 +149,22 @@ export default function About() {
             Dedicated professionals working hard to deliver the best platform for property owners and seekers.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 mt-12">
+          <div className="flex justify-center mt-12">
 
             {/* Team Card */}
             <div className="bg-gray-800 shadow-xl rounded-xl p-6 transform hover:scale-[1.02] transition duration-300 border-t-4 border-indigo-500">
               <img
-                src="https://randomuser.me/api/portraits/men/32.jpg"
+                src= {VijayImage}
                 alt="Vijay Hiwale"
                 className="w-28 h-28 mx-auto rounded-full object-cover border-4 border-cyan-400 p-1"
               />
               <h3 className="mt-4 text-xl font-semibold text-white">Vijay Hiwale</h3>
-              <p className="text-indigo-400 text-sm font-medium">Frontend Lead</p>
+              <p className="text-indigo-400 text-sm font-medium">Full Stack Developer</p>
               <p className="text-gray-400 text-sm mt-2">Focus on user experience and responsive design.</p>
             </div>
+ 
 
-            <div className="bg-gray-800 shadow-xl rounded-xl p-6 transform hover:scale-[1.02] transition duration-300 border-t-4 border-indigo-500">
-              <img
-                src="https://randomuser.me/api/portraits/men/41.jpg"
-                alt="Rushikesh"
-                className="w-28 h-28 mx-auto rounded-full object-cover border-4 border-cyan-400 p-1"
-              />
-              <h3 className="mt-4 text-xl font-semibold text-white">Rushikesh</h3>
-              <p className="text-indigo-400 text-sm font-medium">Backend Architect</p>
-              <p className="text-gray-400 text-sm mt-2">Ensures high performance and data security.</p>
-            </div>
-
-            <div className="bg-gray-800 shadow-xl rounded-xl p-6 transform hover:scale-[1.02] transition duration-300 border-t-4 border-indigo-500">
-              <img
-                src="https://randomuser.me/api/portraits/men/64.jpg"
-                alt="Om Murhe"
-                className="w-28 h-28 mx-auto rounded-full object-cover border-4 border-cyan-400 p-1"
-              />
-              <h3 className="mt-4 text-xl font-semibold text-white">Om Murhe</h3>
-              <p className="text-indigo-400 text-sm font-medium">Product Designer</p>
-              <p className="text-gray-400 text-sm mt-2">Creating intuitive flows and visual identity.</p>
-            </div>
-
+          
           </div>
         </div>
       </section>

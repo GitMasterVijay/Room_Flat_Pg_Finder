@@ -76,17 +76,17 @@ export default function Contact() {
               <ContactInfoCard
                 icon={FaMapMarkerAlt}
                 title="Office Location"
-                content="Level 5, City Center, Pune, Maharashtra, India"
+                content="ADYPU Road Lane No. 5B , Pune, Maharashtra, India"
               />
               <ContactInfoCard
                 icon={FaPhone}
                 title="Phone Support"
-                content="+91 98765 43210 (Mon-Fri, 9am-5pm)"
+                content="+91 95790 74013 (Mon-Fri, 9am-5pm)"
               />
               <ContactInfoCard
                 icon={FaEnvelope}
                 title="Email Us"
-                content="support@roomfinder.com"
+                content="hiwalevijay87@gmail.com"
               />
             </div>
 
