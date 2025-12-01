@@ -78,11 +78,11 @@ export default function Footer() {
           <ul className="space-y-3 text-base">
             <li className="flex items-center gap-2 text-gray-600">
               <Mail size={18} className="text-cyan-500"/>
-              <a href="mailto:support@roomfinder.com" className="hover:text-indigo-600 transition">support@roomfinder.com</a>
+              <a href="mailto:support@roomfinder.com" className="hover:text-indigo-600 transition">hiwalevijay87gmail.com</a>
             </li>
             <li className="flex items-center gap-2 text-gray-600">
               <Phone size={18} className="text-cyan-500"/>
-              <a href="tel:+919876543210" className="hover:text-indigo-600 transition">+91 98765 43210</a>
+              <a href="tel:+919876543210" className="hover:text-indigo-600 transition">+91 9579074013</a>
             </li>
             <li className="flex items-center gap-2 text-gray-600">
               <MapPin size={18} className="text-cyan-500"/>
