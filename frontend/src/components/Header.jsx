@@ -90,13 +90,12 @@ export default function Header() {
               text-3xl
               font-extrabold
               tracking-tight
-              text-gray-800
               bg-clip-text
               bg-gradient-to-r from-teal-600 to-blue-500
-              hover:text-transparent
+              text-transparent
               transition duration-300
             ">
-              Room<span className="text-gray-800 group-hover:text-transparent transition">Finder</span>
+              Room<span className="group-hover:text-transparent transition">Finder</span>
             </h1>
           </Link>
 
