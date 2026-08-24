@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import API from "../api/axios";
+import API, { getImageUrl } from "../api/axios";
 import { Search, Home as HomeIcon, MapPin, CheckCircle, ArrowRight, TrendingUp, DollarSign, Users, Shield, Zap, Building } from "lucide-react";
 import UserFeedback from "../components/userFeedback"
 import RoomFinderAdvantage from "../components/RoomFinderAdvantage";
@@ -26,7 +26,7 @@ export default function Home() {
           title: p.name,
           location: p.location,
           price: `₹${Number(p.price || 0).toLocaleString('en-IN')}/month`,
-          image: p.images && p.images.length > 0 ? `http://localhost:5000/uploads/${p.images[0]}` : "https://placehold.co/600x400/CCCCCC/666666?text=No+Image",
+          image: getImageUrl(p.images?.[0]),
           type: p.type,
         }));
         setFeatured(list);

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
-import API from "../api/axios";
+import API, { getImageUrl } from "../api/axios";
 
 // --- START: Lucide Icon Placeholders (For self-contained file) ---
 // In a real project, these would be imported from 'lucide-react'
@@ -75,7 +75,7 @@ export default function App() {
                     location: p.location,
                     rent: p.price,
                     amenities: p.amenities || [],
-                    imageUrl: p.images && p.images.length > 0 ? `http://localhost:5000/uploads/${p.images[0]}` : "https://placehold.co/600x400/CCCCCC/666666?text=No+Image",
+                    imageUrl: getImageUrl(p.images?.[0]),
                     gender: p.gender || "Mixed",
                 }));
                 setListings(mapped);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Edit, Trash2, Eye, ShieldCheck, DollarSign, Home, TrendingUp, Filter, SortAsc, AlertTriangle, X, Upload, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import API from "../api/axios";
+import API, { getImageUrl } from "../api/axios";
 
 export default function OwnerMyProperties() {
   const [properties, setProperties] = useState([]);
@@ -26,7 +26,7 @@ export default function OwnerMyProperties() {
           status: p.status === 'Not Available' ? 'Pending' : 'Active',
           views: 0,
           bookings: 0,
-          image: p.images && p.images.length > 0 ? `http://localhost:5000/uploads/${p.images[0]}` : "https://placehold.co/600x400/CCCCCC/666666?text=No+Image",
+          image: getImageUrl(p.images?.[0]),
           verified: true,
           description: p.description || '',
           amenities: p.amenities || [],

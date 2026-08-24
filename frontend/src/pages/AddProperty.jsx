@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUpload, FaTrash, FaCheckCircle, FaRupeeSign, FaBed, FaToilet, FaRulerCombined, FaLayerGroup, FaPlus, FaExclamationCircle, FaClipboardCheck, FaCar, FaWifi, FaIceCream, FaCoffee, FaConciergeBell, FaShower, FaHome } from "react-icons/fa";
+import API from "../api/axios";
 
 // List of common amenities
 const AMENITY_OPTIONS = [
@@ -102,16 +103,10 @@ export default function AddProperty() {
         });
     
         try {
-            const token = localStorage.getItem("token");
-            const res = await fetch("http://localhost:5000/api/property/add", {
-                method: "POST",
-                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-                body: form
-            });
+            const res = await API.post("/property/add", form);
+            const data = res.data;
     
-            const data = await res.json();
-    
-                if (data.success) {
+            if (data.success) {
                 alert("Property Added Successfully!");
                 navigate("/owner/my-properties");
             } else {

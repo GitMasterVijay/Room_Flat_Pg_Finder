@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import API from "../api/axios";
+import API, { getImageUrl } from "../api/axios";
 import {
   Wifi,
   Dumbbell,
@@ -257,7 +257,7 @@ export default function ViewPropertiesDetails() {
         setLoading(true);
         const res = await API.get(`/property/${id}`);
         const prop = res.data.property || {};
-        const imgs = (prop.images || []).map((f) => `http://localhost:5000/uploads/${f}`);
+        const imgs = (prop.images || []).map((f) => getImageUrl(f));
         const features = (prop.amenities || []).slice(0, 12).map((a) => {
           const lower = String(a).toLowerCase();
           let icon = "ShieldCheck";
