@@ -6,3 +6,6 @@ dist-ssr
 .DS_Store
 *.log
 .vscode
+.env
+.node_modules
+.backend/congig/db.js
