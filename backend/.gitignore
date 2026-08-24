@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 .vercel
 .env
-.node_modules
+.node_modules/
