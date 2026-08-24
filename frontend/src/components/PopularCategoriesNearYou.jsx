@@ -2,10 +2,10 @@ import Slider from "react-slick";
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import BoysPgImage from "../assets/Boys_Pg.jpg"
-import GirlsPg from "../assets/Girls_pg.jpg"
-import Flat from "../assets/Flat.jpg"
+import GirlsPg from "../assets/Girls_Pg.jpg"
+import Flat from "../assets/flat.jpg"
 import { Users, Home as HomeIcon, Building, Zap } from "lucide-react";
-import Hostel from "../assets/Hostel.jpg"
+import Hostel from "../assets/hostel.jpg"
 import SharingRoom from "../assets/Sharing_Romm.jpg"
 
 
